@@ -94,6 +94,8 @@ class InitialViewController: UIViewController {
     }
 
     @objc private func tapContinueAction() {
-        print("✅ Tap continue")
+        let rootViewController = RootViewController()
+        rootViewController.modalPresentationStyle = .fullScreen
+        present(rootViewController, animated: true)
     }
 }

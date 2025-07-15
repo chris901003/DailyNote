@@ -11,11 +11,14 @@ import UIKit
 
 class MInputView: UIView {
     let label = UILabel()
+    let textView = UITextView()
 
     let iconContent = UIView()
     let imageIcon = UIImageView()
     let clockIcon = UIImageView()
     let sendIcon = UIImageView()
+
+    var textViewHeightConstraint: NSLayoutConstraint!
 
     init() {
         super.init(frame: .zero)
@@ -27,6 +30,16 @@ class MInputView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let view = UITextView()
+        view.text = textView.text
+        view.isScrollEnabled = false
+        let size = CGSize(width: textView.frame.width, height: .infinity)
+        let estimatedSize = view.sizeThatFits(size)
+        textViewHeightConstraint.constant = estimatedSize.height
+    }
+
     private func setup() {
         backgroundColor = .secondarySystemBackground
         layer.cornerRadius = 15
@@ -36,6 +49,13 @@ class MInputView: UIView {
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.numberOfLines = 1
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapLabelAction)))
+        label.isUserInteractionEnabled = true
+
+        textView.text = "輸入新的一段內容吧!"
+        textView.font = .systemFont(ofSize: 16, weight: .semibold)
+        textView.backgroundColor = .clear
+        textView.alpha = 0
 
         imageIcon.image = UIImage(systemName: "photo")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         imageIcon.contentMode = .scaleAspectFit
@@ -55,6 +75,16 @@ class MInputView: UIView {
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
         ])
+
+        addSubview(textView)
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            textView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 11),
+            textView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+        ])
+        textViewHeightConstraint = textView.heightAnchor.constraint(equalToConstant: 10)
+        textViewHeightConstraint.isActive = true
 
         addSubview(iconContent)
         iconContent.translatesAutoresizingMaskIntoConstraints = false
@@ -92,5 +122,12 @@ class MInputView: UIView {
             sendIcon.widthAnchor.constraint(equalToConstant: 25),
             sendIcon.heightAnchor.constraint(equalToConstant: 25)
         ])
+    }
+}
+
+// MARK: - Utility
+extension MInputView {
+    @objc private func tapLabelAction() {
+        textView.becomeFirstResponder()
     }
 }

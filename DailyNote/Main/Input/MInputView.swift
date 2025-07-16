@@ -10,6 +10,9 @@ import Foundation
 import UIKit
 
 class MInputView: UIView {
+    let placeholder = "輸入新的一段內容吧!"
+    let manager = MInputManager()
+
     let label = UILabel()
     let textView = UITextView()
 
@@ -32,19 +35,28 @@ class MInputView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let view = UITextView()
-        view.text = textView.text
-        view.isScrollEnabled = false
-        let size = CGSize(width: textView.frame.width, height: .infinity)
-        let estimatedSize = view.sizeThatFits(size)
-        textViewHeightConstraint.constant = estimatedSize.height
+        adjustTextViewHeight()
+    }
+
+    private func adjustTextViewHeight() {
+        if (textView.alpha == 0) {
+            textViewHeightConstraint.constant = 30
+        } else {
+            let view = UITextView()
+            view.font = textView.font
+            view.text = textView.text
+            view.isScrollEnabled = false
+            let size = CGSize(width: textView.frame.width, height: .infinity)
+            let estimatedSize = view.sizeThatFits(size)
+            textViewHeightConstraint.constant = min(max(30, estimatedSize.height), 120)
+        }
     }
 
     private func setup() {
         backgroundColor = .secondarySystemBackground
         layer.cornerRadius = 15
 
-        label.text = "輸入新的一段內容吧!"
+        label.text = placeholder
         label.textColor = .secondaryLabel
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -52,10 +64,11 @@ class MInputView: UIView {
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapLabelAction)))
         label.isUserInteractionEnabled = true
 
-        textView.text = "輸入新的一段內容吧!"
+        textView.text = manager.inputData.note
         textView.font = .systemFont(ofSize: 16, weight: .semibold)
         textView.backgroundColor = .clear
         textView.alpha = 0
+        textView.delegate = self
 
         imageIcon.image = UIImage(systemName: "photo")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         imageIcon.contentMode = .scaleAspectFit
@@ -89,7 +102,7 @@ class MInputView: UIView {
         addSubview(iconContent)
         iconContent.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            iconContent.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 12),
+            iconContent.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 8),
             iconContent.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             iconContent.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             iconContent.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
@@ -129,5 +142,28 @@ class MInputView: UIView {
 extension MInputView {
     @objc private func tapLabelAction() {
         textView.becomeFirstResponder()
+    }
+}
+
+// MARK: - UITextViewDelegate
+extension MInputView: UITextViewDelegate {
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        textView.alpha = 1
+        label.alpha = 0
+        adjustTextViewHeight()
+        return true
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        adjustTextViewHeight()
+    }
+
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        manager.inputData.note = textView.text
+        label.text = textView.text.isEmpty ? placeholder : textView.text
+        textView.alpha = 0
+        label.alpha = 1
+        adjustTextViewHeight()
+        return true
     }
 }

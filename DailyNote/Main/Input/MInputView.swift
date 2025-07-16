@@ -40,7 +40,10 @@ class MInputView: UIView {
 
     private func adjustTextViewHeight() {
         if (textView.alpha == 0) {
-            textViewHeightConstraint.constant = 30
+            UIView.animate(withDuration: 0.25) {
+                self.textViewHeightConstraint.constant = 30
+                self.layoutIfNeeded()
+            }
         } else {
             let view = UITextView()
             view.font = textView.font
@@ -48,7 +51,10 @@ class MInputView: UIView {
             view.isScrollEnabled = false
             let size = CGSize(width: textView.frame.width, height: .infinity)
             let estimatedSize = view.sizeThatFits(size)
-            textViewHeightConstraint.constant = min(max(30, estimatedSize.height), 120)
+            UIView.animate(withDuration: 0.25) {
+                self.textViewHeightConstraint.constant = min(max(30, estimatedSize.height), 120)
+                self.layoutIfNeeded()
+            }
         }
     }
 

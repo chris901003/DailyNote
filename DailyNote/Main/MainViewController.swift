@@ -35,6 +35,8 @@ class MainViewController: UIViewController {
     private func setup() {
         view.backgroundColor = .white
         scrollView.keyboardDismissMode = .onDrag
+
+        mainInputView.delegate = self
     }
     
     private func layout() {
@@ -88,5 +90,12 @@ extension MainViewController {
             self.scrollView.contentInset.bottom = 0
             self.scrollView.verticalScrollIndicatorInsets.bottom = 0
         }
+    }
+}
+
+// MARK: - PresentableVC
+extension MainViewController: PresentableVC {
+    func presentVC(_ vc: UIViewController) {
+        present(vc, animated: true)
     }
 }

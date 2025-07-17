@@ -12,6 +12,7 @@ import UIKit
 class MInputView: UIView {
     let placeholder = "輸入新的一段內容吧!"
     let manager = MInputManager()
+    weak var delegate: PresentableVC?
 
     let label = UILabel()
     let textView = UITextView()
@@ -84,6 +85,8 @@ class MInputView: UIView {
 
         sendIcon.image = UIImage(systemName: "paperplane")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         sendIcon.contentMode = .scaleAspectFit
+        sendIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(sendAction)))
+        sendIcon.isUserInteractionEnabled = true
     }
 
     private func layout() {
@@ -146,6 +149,17 @@ class MInputView: UIView {
 extension MInputView {
     @objc private func tapLabelAction() {
         textView.becomeFirstResponder()
+    }
+
+    @objc private func sendAction() {
+        do {
+            try manager.sendAction()
+        } catch {
+            let alert = UIAlertController(title: "創建失敗", message: error.localizedDescription, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "確認", style: .default)
+            alert.addAction(okAction)
+            delegate?.presentVC(alert)
+        }
     }
 }
 

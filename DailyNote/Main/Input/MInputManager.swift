@@ -119,8 +119,14 @@ extension MInputManager: PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
-        inputData.images = []
-        selectedImageIds = results.compactMap { $0.assetIdentifier }
+        let newSelectedImageIds = results.compactMap { $0.assetIdentifier }
+        let diff = Set(selectedImageIds).subtracting(Set(newSelectedImageIds))
+        diff.forEach { id in
+            let index = selectedImageIds.firstIndex(of: id)!
+            inputData.images.remove(at: index)
+            selectedImageIds.remove(at: index)
+        }
+        
 
         for result in results {
             let provider = result.itemProvider
@@ -129,6 +135,7 @@ extension MInputManager: PHPickerViewControllerDelegate {
                     guard let self else { return }
                     if let uiImage = image as? UIImage {
                         inputData.images.append(uiImage)
+                        selectedImageIds.append(result.assetIdentifier ?? "")
                     }
                 }
             }

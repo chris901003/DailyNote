@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class MInputView: UIView {
+class MInputViewController: UIViewController {
     let placeholder = "輸入新的一段內容吧!"
     let manager = MInputManager()
     weak var delegate: PresentableVC?
@@ -24,18 +24,14 @@ class MInputView: UIView {
 
     var textViewHeightConstraint: NSLayoutConstraint!
 
-    init() {
-        super.init(frame: .zero)
+    override func viewDidLoad() {
+        super.viewDidLoad()
         setup()
         layout()
     }
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         adjustTextViewHeight()
     }
 
@@ -43,7 +39,7 @@ class MInputView: UIView {
         if (textView.alpha == 0) {
             UIView.animate(withDuration: 0.25) {
                 self.textViewHeightConstraint.constant = 30
-                self.layoutIfNeeded()
+                self.view.layoutIfNeeded()
             }
         } else {
             let view = UITextView()
@@ -54,15 +50,15 @@ class MInputView: UIView {
             let estimatedSize = view.sizeThatFits(size)
             UIView.animate(withDuration: 0.25) {
                 self.textViewHeightConstraint.constant = min(max(30, estimatedSize.height), 120)
-                self.layoutIfNeeded()
+                self.view.layoutIfNeeded()
             }
         }
     }
 
     private func setup() {
-        manager.view = self
-        backgroundColor = .secondarySystemBackground
-        layer.cornerRadius = 15
+        manager.vc = self
+        view.backgroundColor = .secondarySystemBackground
+        view.layer.cornerRadius = 15
 
         label.text = placeholder
         label.textColor = .secondaryLabel
@@ -80,6 +76,8 @@ class MInputView: UIView {
 
         imageIcon.image = UIImage(systemName: "photo")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         imageIcon.contentMode = .scaleAspectFit
+        imageIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapPhotoAction)))
+        imageIcon.isUserInteractionEnabled = true
 
         manager.setClockDate()
 
@@ -90,31 +88,31 @@ class MInputView: UIView {
     }
 
     private func layout() {
-        addSubview(label)
+        view.addSubview(label)
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+            label.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12)
         ])
 
-        addSubview(textView)
+        view.addSubview(textView)
         textView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 11),
-            textView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+            textView.topAnchor.constraint(equalTo: view.topAnchor, constant: 4),
+            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 11),
+            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12)
         ])
         textViewHeightConstraint = textView.heightAnchor.constraint(equalToConstant: 10)
         textViewHeightConstraint.isActive = true
 
-        addSubview(iconContent)
+        view.addSubview(iconContent)
         iconContent.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             iconContent.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
-            iconContent.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            iconContent.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            iconContent.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
+            iconContent.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            iconContent.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            iconContent.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -12)
         ])
 
         iconContent.addSubview(imageIcon)
@@ -146,9 +144,13 @@ class MInputView: UIView {
 }
 
 // MARK: - Utility
-extension MInputView {
+extension MInputViewController {
     @objc private func tapLabelAction() {
         textView.becomeFirstResponder()
+    }
+
+    @objc private func tapPhotoAction() {
+        manager.showPhotoMenu()
     }
 
     @objc private func sendAction() {
@@ -164,7 +166,7 @@ extension MInputView {
 }
 
 // MARK: - UITextViewDelegate
-extension MInputView: UITextViewDelegate {
+extension MInputViewController: UITextViewDelegate {
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         textView.alpha = 1
         label.alpha = 0
@@ -184,5 +186,19 @@ extension MInputView: UITextViewDelegate {
         label.alpha = 1
         adjustTextViewHeight()
         return true
+    }
+}
+
+// MARK: - UIImagePickerControllerDelegate
+extension MInputViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        if let image = info[.originalImage] as? UIImage {
+            manager.inputData.photos.append(image)
+        }
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
 }

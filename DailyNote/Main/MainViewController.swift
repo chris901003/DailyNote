@@ -12,7 +12,7 @@ import UIKit
 class MainViewController: UIViewController {
     let scrollView = UIScrollView()
     let mainContentView = UIView()
-    let mainInputView = MInputView()
+    let mainInputViewController = MInputViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +36,7 @@ class MainViewController: UIViewController {
         view.backgroundColor = .white
         scrollView.keyboardDismissMode = .onDrag
 
-        mainInputView.delegate = self
+        mainInputViewController.delegate = self
     }
     
     private func layout() {
@@ -59,14 +59,16 @@ class MainViewController: UIViewController {
             mainContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             mainContentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
         ])
-        
-        mainContentView.addSubview(mainInputView)
-        mainInputView.translatesAutoresizingMaskIntoConstraints = false
+
+        addChild(mainInputViewController)
+        view.addSubview(mainInputViewController.view)
+        mainInputViewController.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            mainInputView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor, constant: 16),
-            mainInputView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -16),
-            mainInputView.bottomAnchor.constraint(equalTo: mainContentView.bottomAnchor, constant: -12)
+            mainInputViewController.view.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor, constant: 16),
+            mainInputViewController.view.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -16),
+            mainInputViewController.view.bottomAnchor.constraint(equalTo: mainContentView.bottomAnchor, constant: -12)
         ])
+        mainInputViewController.didMove(toParent: self)
     }
 }
 
@@ -81,7 +83,7 @@ extension MainViewController {
         UIView.animate(withDuration: duration) {
             self.scrollView.contentInset.bottom = keyboardHeight
             self.scrollView.verticalScrollIndicatorInsets.bottom = keyboardHeight
-            self.scrollView.scrollRectToVisible(self.mainInputView.frame, animated: true)
+            self.scrollView.scrollRectToVisible(self.mainInputViewController.view.frame, animated: true)
         }
     }
 
@@ -96,6 +98,8 @@ extension MainViewController {
 // MARK: - PresentableVC
 extension MainViewController: PresentableVC {
     func presentVC(_ vc: UIViewController) {
-        present(vc, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.present(vc, animated: true)
+        }
     }
 }

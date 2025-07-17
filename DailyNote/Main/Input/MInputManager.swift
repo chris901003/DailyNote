@@ -29,7 +29,7 @@ extension MInputManager {
 class MInputManager {
     var inputData = MainInputData.newInput() {
         didSet {
-            let imageIconColor: UIColor = inputData.images.count + inputData.photos.count == 0 ? .secondaryLabel : .systemBlue
+            let imageIconColor: UIColor = inputData.isPhotoEmpty() ? .secondaryLabel : .systemBlue
             let sendIconColor: UIColor = inputData.note.isEmpty ? .secondaryLabel : .systemBlue
             DispatchQueue.main.async { [weak self] in
                 self?.vc?.imageIcon.image = UIImage(systemName: "photo")?.withTintColor(imageIconColor, renderingMode: .alwaysOriginal)
@@ -49,11 +49,15 @@ class MInputManager {
         let photoLibraryAction = UIAlertAction(title: "相簿", style: .default) { [weak self] _ in
             self?.presentPhotoLibrary()
         }
+        let showPhotoAction = UIAlertAction(title: "照片列表", style: .default) {[weak self] _ in
+            self?.showPhotoList()
+        }
         let cancelAction = UIAlertAction(title: "取消", style: .cancel)
 
         let alertMenu = UIAlertController(title: "照片", message: nil, preferredStyle: .actionSheet)
         alertMenu.addAction(takePhotoAction)
         alertMenu.addAction(photoLibraryAction)
+        if !inputData.isPhotoEmpty() { alertMenu.addAction(showPhotoAction) }
         alertMenu.addAction(cancelAction)
         vc?.delegate?.presentVC(alertMenu)
     }
@@ -115,6 +119,7 @@ extension MInputManager: PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
+        inputData.images = []
         selectedImageIds = results.compactMap { $0.assetIdentifier }
 
         for result in results {
@@ -128,5 +133,25 @@ extension MInputManager: PHPickerViewControllerDelegate {
                 }
             }
         }
+    }
+}
+
+// MARK: - Photo List
+extension MInputManager {
+    private func showPhotoList() {
+        let datas: [MIPhotoListViewController.Data] = zip(inputData.images, selectedImageIds).map {
+            .init(type: .photoLibrary(id: $1), image: $0)
+        } + inputData.photos.map {
+            .init(type: .camera, image: $0)
+        }
+        let photoListViewController = MIPhotoListViewController(datas: datas)
+        if let sheet = photoListViewController.sheetPresentationController {
+            sheet.detents = [
+                .custom(resolver: { context in
+                    UIScreen.main.bounds.height / 2
+                })
+            ]
+        }
+        vc?.present(photoListViewController, animated: true)
     }
 }

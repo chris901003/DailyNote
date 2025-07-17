@@ -30,4 +30,8 @@ struct MainInputData {
         let startDate = hour == 0 ? calendar.startOfDay(for: endDate) : calendar.date(byAdding: .hour, value: -1, to: endDate)
         return .init(startDate: startDate ?? Date.now, endDate: endDate)
     }
+
+    func isPhotoEmpty() -> Bool {
+        (photos.count + images.count) == 0
+    }
 }

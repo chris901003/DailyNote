@@ -18,7 +18,7 @@ class MInputView: UIView {
 
     let iconContent = UIView()
     let imageIcon = UIImageView()
-    let clockIcon = UIImageView()
+    let clockView = MIClockView()
     let sendIcon = UIImageView()
 
     var textViewHeightConstraint: NSLayoutConstraint!
@@ -59,6 +59,7 @@ class MInputView: UIView {
     }
 
     private func setup() {
+        manager.view = self
         backgroundColor = .secondarySystemBackground
         layer.cornerRadius = 15
 
@@ -79,8 +80,7 @@ class MInputView: UIView {
         imageIcon.image = UIImage(systemName: "photo")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         imageIcon.contentMode = .scaleAspectFit
 
-        clockIcon.image = UIImage(systemName: "clock")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
-        clockIcon.contentMode = .scaleAspectFit
+        manager.setClockDate()
 
         sendIcon.image = UIImage(systemName: "paperplane")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         sendIcon.contentMode = .scaleAspectFit
@@ -108,7 +108,7 @@ class MInputView: UIView {
         addSubview(iconContent)
         iconContent.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            iconContent.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 8),
+            iconContent.topAnchor.constraint(equalTo: textView.bottomAnchor, constant: 16),
             iconContent.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             iconContent.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             iconContent.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
@@ -124,13 +124,11 @@ class MInputView: UIView {
             imageIcon.heightAnchor.constraint(equalToConstant: 25)
         ])
 
-        iconContent.addSubview(clockIcon)
-        clockIcon.translatesAutoresizingMaskIntoConstraints = false
+        iconContent.addSubview(clockView)
+        clockView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            clockIcon.centerYAnchor.constraint(equalTo: iconContent.centerYAnchor),
-            clockIcon.leadingAnchor.constraint(equalTo: imageIcon.trailingAnchor, constant: 12),
-            clockIcon.widthAnchor.constraint(equalToConstant: 25),
-            clockIcon.heightAnchor.constraint(equalToConstant: 25)
+            clockView.centerYAnchor.constraint(equalTo: iconContent.centerYAnchor),
+            clockView.leadingAnchor.constraint(equalTo: imageIcon.trailingAnchor, constant: 12)
         ])
 
         iconContent.addSubview(sendIcon)
@@ -162,6 +160,7 @@ extension MInputView: UITextViewDelegate {
 
     func textViewDidChange(_ textView: UITextView) {
         adjustTextViewHeight()
+        manager.inputData.note = textView.text
     }
 
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {

@@ -10,29 +10,6 @@ import Foundation
 import UIKit
 import PhotosUI
 
-struct MainInputData {
-    var note: String
-    var startDate: Date
-    var endDate: Date
-    var photos: [UIImage] = [] // Source from camera
-    var images: [UIImage] = [] // Source from photo library
-
-    init(note: String = "", startDate: Date = Date.now, endDate: Date = Date.now) {
-        self.note = note
-        self.startDate = startDate
-        self.endDate = endDate
-    }
-
-    static func newInput() -> MainInputData {
-        let endDate = Date.now
-
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: endDate)
-        let startDate = hour == 0 ? calendar.startOfDay(for: endDate) : calendar.date(byAdding: .hour, value: -1, to: endDate)
-        return .init(startDate: startDate ?? Date.now, endDate: endDate)
-    }
-}
-
 extension MInputManager {
     enum CustomError: LocalizedError {
         case noteEmpty
@@ -52,9 +29,11 @@ extension MInputManager {
 class MInputManager {
     var inputData = MainInputData.newInput() {
         didSet {
-            let color: UIColor = inputData.note.isEmpty ? .secondaryLabel : .systemBlue
+            let imageIconColor: UIColor = inputData.images.count + inputData.photos.count == 0 ? .secondaryLabel : .systemBlue
+            let sendIconColor: UIColor = inputData.note.isEmpty ? .secondaryLabel : .systemBlue
             DispatchQueue.main.async { [weak self] in
-                self?.vc?.sendIcon.image = UIImage(systemName: "paperplane")?.withTintColor(color, renderingMode: .alwaysOriginal)
+                self?.vc?.imageIcon.image = UIImage(systemName: "photo")?.withTintColor(imageIconColor, renderingMode: .alwaysOriginal)
+                self?.vc?.sendIcon.image = UIImage(systemName: "paperplane")?.withTintColor(sendIconColor, renderingMode: .alwaysOriginal)
             }
         }
     }
@@ -63,37 +42,12 @@ class MInputManager {
     weak var vc: MInputViewController?
 
     func showPhotoMenu() {
-        let takePhotoAction = UIAlertAction(title: "拍照", style: .default) { _ in
-            Task { [weak self] in
-                guard let self else { return }
-                guard await checkCameraPermission() else {
-                    let alert = await UIAlertController(title: "相機存取失敗", message: "請到設定調整相機權限", preferredStyle: .alert)
-                    let okAction = await UIAlertAction(title: "確定", style: .default)
-                    await alert.addAction(okAction)
-                    await vc?.delegate?.presentVC(alert)
-                    return
-                }
-
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    let picker = UIImagePickerController()
-                    picker.sourceType = .camera
-                    picker.delegate = vc
-                    picker.allowsEditing = false
-                    vc?.delegate?.presentVC(picker)
-                }
-            }
+        let takePhotoAction = UIAlertAction(title: "拍照", style: .default) { [weak self] _ in
+            self?.presentCamera()
         }
 
         let photoLibraryAction = UIAlertAction(title: "相簿", style: .default) { [weak self] _ in
-            var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
-            config.selectionLimit = 0
-            config.filter = .images
-            config.preselectedAssetIdentifiers = self?.selectedImageIds ?? []
-
-            let picker = PHPickerViewController(configuration: config)
-            picker.delegate = self
-            self?.vc?.delegate?.presentVC(picker)
+            self?.presentPhotoLibrary()
         }
         let cancelAction = UIAlertAction(title: "取消", style: .cancel)
 
@@ -117,14 +71,48 @@ class MInputManager {
     }
 }
 
+// MARK: - Camera
 extension MInputManager {
-    func checkCameraPermission() async -> Bool {
+    private func presentCamera() {
+        Task { [weak self] in
+            guard let self else { return }
+            guard await checkCameraPermission() else {
+                let alert = await UIAlertController(title: "相機存取失敗", message: "請到設定調整相機權限", preferredStyle: .alert)
+                let okAction = await UIAlertAction(title: "確定", style: .default)
+                await alert.addAction(okAction)
+                await vc?.delegate?.presentVC(alert)
+                return
+            }
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                let picker = UIImagePickerController()
+                picker.sourceType = .camera
+                picker.delegate = vc
+                picker.allowsEditing = false
+                vc?.delegate?.presentVC(picker)
+            }
+        }
+    }
+
+    private func checkCameraPermission() async -> Bool {
         await AVCaptureDevice.requestAccess(for: .video)
     }
 }
 
-// MARK: - PHPickerViewControllerDelegate
+// MARK: - Photo Library
 extension MInputManager: PHPickerViewControllerDelegate {
+    private func presentPhotoLibrary() {
+        var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
+        config.selectionLimit = 0
+        config.filter = .images
+        config.preselectedAssetIdentifiers = selectedImageIds
+
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        vc?.delegate?.presentVC(picker)
+    }
+
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         selectedImageIds = results.compactMap { $0.assetIdentifier }

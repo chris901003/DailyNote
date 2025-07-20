@@ -9,6 +9,10 @@
 import Foundation
 import UIKit
 
+protocol MIPhotoListViewControllerDelegate: AnyObject {
+    func deleteImage(data: MIPhotoListViewController.Data)
+}
+
 extension MIPhotoListViewController {
     enum ImageType {
         case photoLibrary(id: String)
@@ -32,6 +36,7 @@ class MIPhotoListViewController: UIViewController {
     }()
 
     var datas: [Data]
+    weak var delegate: MIPhotoListViewControllerDelegate?
 
     init(datas: [Data]) {
         self.datas = datas
@@ -107,7 +112,8 @@ extension MIPhotoListViewController: UICollectionViewDataSource, UICollectionVie
 extension MIPhotoListViewController: MIPLImageCellDelegate {
     func deleteImageAction(cell: MIPLImageCell) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        datas.remove(at: indexPath.row)
+        let deletedData = datas.remove(at: indexPath.row)
+        delegate?.deleteImage(data: deletedData)
         collectionView.deleteItems(at: [indexPath])
     }
 }

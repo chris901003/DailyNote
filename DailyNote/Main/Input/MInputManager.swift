@@ -159,6 +159,22 @@ extension MInputManager {
                 })
             ]
         }
+        photoListViewController.delegate = self
         vc?.present(photoListViewController, animated: true)
+    }
+}
+
+// MARK: - MIPhotoListViewControllerDelegate
+extension MInputManager: MIPhotoListViewControllerDelegate {
+    func deleteImage(data: MIPhotoListViewController.Data) {
+        switch data.type {
+            case .camera:
+                guard let index = inputData.photos.firstIndex(of: data.image) else { return }
+                inputData.photos.remove(at: index)
+            case .photoLibrary(let id):
+                guard let index = inputData.images.firstIndex(of: data.image) else { return }
+                inputData.images.remove(at: index)
+                selectedImageIds.removeAll { $0 == id }
+        }
     }
 }

@@ -30,6 +30,7 @@ class MNLNoteCell: UITableViewCell {
     var labelTrailingConstraint: NSLayoutConstraint!
     var data: CellData?
     var isExtended = false
+    weak var delegate: PresentableVC?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -59,6 +60,7 @@ class MNLNoteCell: UITableViewCell {
     }
 
     func config(data: CellData) {
+        self.data = data
         label.text = data.note
         if !data.images.isEmpty {
             photoView.image = data.images.first
@@ -173,6 +175,15 @@ extension MNLNoteCell {
     }
 
     @objc private func showPhotoList() {
-        print("✅ tap photo view")
+        guard let images = data?.images else { return }
+        let photoListVC = MNLPhotoListViewController(images: images)
+        if let sheet = photoListVC.sheetPresentationController {
+            sheet.detents = [
+                .custom(resolver: { context in
+                    UIScreen.main.bounds.height / 2
+                })
+            ]
+        }
+        delegate?.presentVC(photoListVC)
     }
 }

@@ -23,6 +23,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MNLNoteCell.cellId, for: indexPath) as? MNLNoteCell else {
             return UITableViewCell()
         }
+        cell.delegate = self
         cell.config(
             data: .init(note: "這是第一篇日記\n第一條內容\n第二條內容\n第三條內容\n第四條內容\n第五條內容\n第六條內容", images: [UIImage(systemName: "house")!], startDate: .now, endDate: .now)
         )

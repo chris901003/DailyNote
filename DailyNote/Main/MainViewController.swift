@@ -14,6 +14,8 @@ class MainViewController: UIViewController {
     let mainContentView = UIView()
     let mainInputViewController = MInputViewController()
     let noteTableView = UITableView()
+
+    var lastExtendIndexPath: IndexPath?
     
     override func viewDidLoad() {
         super.viewDidLoad()

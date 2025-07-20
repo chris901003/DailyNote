@@ -29,6 +29,7 @@ class MNLNoteCell: UITableViewCell {
 
     var labelTrailingConstraint: NSLayoutConstraint!
     var data: CellData?
+    var isExtended = false
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -50,6 +51,11 @@ class MNLNoteCell: UITableViewCell {
         dateLabel.text = "開始時間 ~ 結束時間"
         photoView.image = nil
         photoLabel.text = ""
+
+        isExtended = false
+        label.numberOfLines = 3
+        label.textColor = .secondaryLabel
+        mainContentView.layer.borderColor = UIColor.secondarySystemBackground.cgColor
     }
 
     func config(data: CellData) {
@@ -64,8 +70,10 @@ class MNLNoteCell: UITableViewCell {
 
         labelTrailingConstraint.isActive = false
         if photoView.image != nil {
+            photoView.alpha = 1
             labelTrailingConstraint = label.trailingAnchor.constraint(equalTo: photoView.leadingAnchor, constant: -16)
         } else {
+            photoView.alpha = 0
             labelTrailingConstraint = label.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -8)
         }
         labelTrailingConstraint.isActive = true
@@ -83,12 +91,13 @@ class MNLNoteCell: UITableViewCell {
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.numberOfLines = 3
 
-        photoView.image = UIImage(named: "InitialBackground")
         photoView.contentMode = .scaleAspectFill
         photoView.clipsToBounds = true
         photoView.layer.cornerRadius = 10.0
+        photoView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showPhotoList)))
+        photoView.isUserInteractionEnabled = true
 
-        photoLabel.text = "共 2 張照片"
+        photoLabel.text = ""
         photoLabel.textColor = .quaternaryLabel
         photoLabel.font = .systemFont(ofSize: 12, weight: .semibold)
 
@@ -143,5 +152,27 @@ class MNLNoteCell: UITableViewCell {
             dateLabel.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -8),
             dateLabel.bottomAnchor.constraint(equalTo: mainContentView.bottomAnchor, constant: -8)
         ])
+    }
+}
+
+extension MNLNoteCell {
+    func extendOrShrinkCell() {
+        isExtended = !isExtended
+        UIView.animate(withDuration: 0.25) { [weak self] in
+            guard let self else { return }
+            if isExtended {
+                label.numberOfLines = 0
+                label.textColor = .black
+                mainContentView.layer.borderColor = UIColor.black.cgColor
+            } else {
+                label.numberOfLines = 3
+                label.textColor = .secondaryLabel
+                mainContentView.layer.borderColor = UIColor.secondarySystemBackground.cgColor
+            }
+        }
+    }
+
+    @objc private func showPhotoList() {
+        print("✅ tap photo view")
     }
 }

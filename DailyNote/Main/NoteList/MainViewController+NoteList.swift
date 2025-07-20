@@ -24,8 +24,22 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         cell.config(
-            data: .init(note: "這是第一篇日記\n第一條內容\n第二條內容\n第三條內容", images: [UIImage(systemName: "house")!], startDate: .now, endDate: .now)
+            data: .init(note: "這是第一篇日記\n第一條內容\n第二條內容\n第三條內容\n第四條內容\n第五條內容\n第六條內容", images: [UIImage(systemName: "house")!], startDate: .now, endDate: .now)
         )
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? MNLNoteCell else { return }
+        tableView.beginUpdates()
+        if let lastExtendIndexPath,
+            lastExtendIndexPath != indexPath,
+            let lastCell = tableView.cellForRow(at: lastExtendIndexPath) as? MNLNoteCell,
+            lastCell.isExtended {
+            lastCell.extendOrShrinkCell()
+        }
+        lastExtendIndexPath = lastExtendIndexPath == indexPath ? nil : indexPath
+        cell.extendOrShrinkCell()
+        tableView.endUpdates()
     }
 }

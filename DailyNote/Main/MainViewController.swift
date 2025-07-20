@@ -122,7 +122,7 @@ extension MainViewController {
 
     @objc private func receiveNewNote(_ notification: Notification) {
         guard let note = DNNotification.decodeNewNote(notification) else { return }
-        manager.notes.append(note)
+        manager.addNewNote(note: note)
         noteTableView.reloadData()
     }
 }

@@ -98,6 +98,16 @@ extension MIPhotoListViewController: UICollectionViewDataSource, UICollectionVie
             return UICollectionViewCell()
         }
         cell.config(image: datas[indexPath.row].image)
+        cell.delegate = self
         return cell
+    }
+}
+
+// MARK: - MIPLImageCellDelegate
+extension MIPhotoListViewController: MIPLImageCellDelegate {
+    func deleteImageAction(cell: MIPLImageCell) {
+        guard let indexPath = collectionView.indexPath(for: cell) else { return }
+        datas.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
     }
 }

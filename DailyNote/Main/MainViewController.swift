@@ -13,11 +13,13 @@ class MainViewController: UIViewController {
     let scrollView = UIScrollView()
     let mainContentView = UIView()
     let mainInputViewController = MInputViewController()
+    let noteTableView = UITableView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
         layout()
+        registerCell()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillShow),
@@ -37,6 +39,12 @@ class MainViewController: UIViewController {
         scrollView.keyboardDismissMode = .onDrag
 
         mainInputViewController.delegate = self
+
+        noteTableView.separatorStyle = .none
+        noteTableView.keyboardDismissMode = .onDrag
+        noteTableView.delegate = self
+        noteTableView.dataSource = self
+        noteTableView.showsVerticalScrollIndicator = false
     }
     
     private func layout() {
@@ -69,6 +77,15 @@ class MainViewController: UIViewController {
             mainInputViewController.view.bottomAnchor.constraint(equalTo: mainContentView.bottomAnchor, constant: -12)
         ])
         mainInputViewController.didMove(toParent: self)
+
+        mainContentView.addSubview(noteTableView)
+        noteTableView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            noteTableView.topAnchor.constraint(equalTo: mainContentView.safeAreaLayoutGuide.topAnchor),
+            noteTableView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor, constant: 16),
+            noteTableView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -16),
+            noteTableView.bottomAnchor.constraint(equalTo: mainInputViewController.view.topAnchor, constant: -12)
+        ])
     }
 }
 

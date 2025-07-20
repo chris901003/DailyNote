@@ -15,6 +15,7 @@ class MainViewController: UIViewController {
     let mainInputViewController = MInputViewController()
     let noteTableView = UITableView()
 
+    let manager = MainManager()
     var lastExtendIndexPath: IndexPath?
     
     override func viewDidLoad() {
@@ -32,6 +33,12 @@ class MainViewController: UIViewController {
             self,
             selector: #selector(keyboardWillHide),
             name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveNewNote),
+            name: .newNote,
             object: nil
         )
     }
@@ -111,6 +118,12 @@ extension MainViewController {
             self.scrollView.contentInset.bottom = 0
             self.scrollView.verticalScrollIndicatorInsets.bottom = 0
         }
+    }
+
+    @objc private func receiveNewNote(_ notification: Notification) {
+        guard let note = DNNotification.decodeNewNote(notification) else { return }
+        manager.notes.append(note)
+        noteTableView.reloadData()
     }
 }
 

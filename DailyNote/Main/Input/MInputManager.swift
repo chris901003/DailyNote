@@ -72,6 +72,20 @@ class MInputManager {
 
         inputData.startDate = duration.startTime
         inputData.endDate = duration.endTime
+
+        DNNotification.sendNewNote(
+            newNote: .init(
+                note: inputData.note,
+                images: inputData.images + inputData.photos,
+                startDate: inputData.startDate,
+                endDate: inputData.endDate
+            )
+        )
+
+        inputData = MainInputData.newInput()
+        vc?.textView.text = ""
+        vc?.label.text = vc?.placeholder
+        vc?.textView.resignFirstResponder()
     }
 }
 

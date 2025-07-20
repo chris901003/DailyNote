@@ -16,16 +16,17 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        manager.notes.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MNLNoteCell.cellId, for: indexPath) as? MNLNoteCell else {
             return UITableViewCell()
         }
+        let data = manager.notes[indexPath.row]
         cell.delegate = self
         cell.config(
-            data: .init(note: "這是第一篇日記\n第一條內容\n第二條內容\n第三條內容\n第四條內容\n第五條內容\n第六條內容", images: [UIImage(systemName: "house")!], startDate: .now, endDate: .now)
+            data: .init(note: data.note, images: data.images, startDate: data.startDate, endDate: data.endDate)
         )
         return cell
     }

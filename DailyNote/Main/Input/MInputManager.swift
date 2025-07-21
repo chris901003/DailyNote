@@ -27,6 +27,7 @@ extension MInputManager {
 }
 
 class MInputManager {
+    let localSaveManager = LocalSaveManager()
     var inputData = MainInputData.newInput() {
         didSet {
             let imageIconColor: UIColor = inputData.isPhotoEmpty() ? .secondaryLabel : .systemBlue
@@ -73,14 +74,15 @@ class MInputManager {
         inputData.startDate = duration.startTime
         inputData.endDate = duration.endTime
 
-        DNNotification.sendNewNote(
-            newNote: .init(
-                note: inputData.note,
-                images: inputData.images + inputData.photos,
-                startDate: inputData.startDate,
-                endDate: inputData.endDate
-            )
+        let noteData = NoteData(
+            note: inputData.note,
+            images: inputData.images + inputData.photos,
+            startDate: inputData.startDate,
+            endDate: inputData.endDate
         )
+
+        try localSaveManager.createNewNote(note: noteData)
+        DNNotification.sendNewNote(newNote: noteData)
 
         inputData = MainInputData.newInput()
         vc?.textView.text = ""

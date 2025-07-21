@@ -17,7 +17,11 @@ class LocalSaveManager {
     let basePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     let notePath: URL
 
+    let encoder = JSONEncoder()
+
     init() {
+        encoder.outputFormatting = .prettyPrinted
+
         notePath = basePath.appendingPathComponent(LocalSavePathType.note.rawValue)
         createRootFolderIfNeeded()
     }
@@ -34,18 +38,6 @@ class LocalSaveManager {
 
 // MARK: - Utility
 extension LocalSaveManager {
-    func createNewNoteFolder(startTime: Date) throws -> URL {
-        var index = 1
-        let timeStr = DateFormatterManager.shared.dateFormat(type: .yyyyMMddHHmm, date: startTime)
-        while true {
-            let folderPath = notePath.appendingPathComponent("\(timeStr)-\(index)")
-            if fileManager.fileExists(atPath: folderPath.path) { continue }
-            index += 1
-            try fileManager.createDirectory(at: folderPath, withIntermediateDirectories: true)
-            return folderPath
-        }
-    }
-
     func getTotalSpaceUsage() throws -> Double {
         var totalSize: UInt64 = 0
         totalSize += try folderSize(at: notePath)

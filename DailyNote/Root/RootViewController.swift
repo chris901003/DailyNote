@@ -16,10 +16,10 @@ class RootViewController: UITabBarController {
         let mainViewController = MainViewController()
         mainViewController.tabBarItem = UITabBarItem(title: "主頁", image: UIImage(systemName: "list.clipboard"), selectedImage: nil)
 
-        let accountViewController = AccountViewController()
-        accountViewController.tabBarItem = UITabBarItem(title: "帳號", image: UIImage(systemName: "person.crop.circle"), selectedImage: nil)
+        let settingViewController = SettingViewController()
+        settingViewController.tabBarItem = UITabBarItem(title: "設定", image: UIImage(systemName: "gear"), selectedImage: nil)
 
-        viewControllers = [mainViewController, accountViewController]
+        viewControllers = [mainViewController, settingViewController]
 
         selectedIndex = 0
     }

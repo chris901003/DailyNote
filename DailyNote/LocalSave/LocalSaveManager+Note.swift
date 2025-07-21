@@ -7,6 +7,7 @@
 
 
 import Foundation
+import UIKit
 
 struct LocalSaveNoteData: Codable {
     let note: String
@@ -33,6 +34,32 @@ extension LocalSaveManager {
             try imageData?.write(to: imagePath)
         }
     }
+
+    func getFolders(url: URL) throws -> [String] {
+        try fileManager.contentsOfDirectory(atPath: url.path).sorted(by: >)
+    }
+
+    func loadDayNotes(year: String, month: String, day: String) throws -> [NoteData] {
+        let loadPath = notePath
+            .appendingPathComponent(year)
+            .appendingPathComponent(month)
+            .appendingPathComponent(day)
+        let notesPath = try getFolders(url: loadPath)
+        return try notesPath.map { path in
+            loadPath.appendingPathComponent(path)
+        }.map { url in
+            let noteURL = url.appendingPathComponent("note.json")
+            let data = try Data(contentsOf: noteURL)
+            let noteData = try JSONDecoder().decode(LocalSaveNoteData.self, from: data)
+            var images: [UIImage?] = []
+            for idx in 0..<noteData.numberOfImages {
+                let imageURL = url.appendingPathComponent("image-\(idx + 1).jpg")
+                images.append(UIImage(contentsOfFile: imageURL.path))
+            }
+            let imgs = images.compactMap { $0 }
+            return NoteData(note: noteData.note, images: imgs, startDate: noteData.startDate, endDate: noteData.endDate)
+        }
+    }
 }
 
 // MARK: - Private Function
@@ -41,8 +68,8 @@ private extension LocalSaveManager {
         var index = 1
         let calendar = Calendar.current
         let year = calendar.component(.year, from: startTime)
-        let month = calendar.component(.month, from: startTime)
-        let day = calendar.component(.day, from: startTime)
+        let month = String(format: "%02d", calendar.component(.month, from: startTime))
+        let day = String(format: "%02d", calendar.component(.day, from: startTime))
         let hour = String(format: "%02d", calendar.component(.hour, from: startTime))
         let minute = String(format: "%02d", calendar.component(.minute, from: startTime))
         let basePath = notePath

@@ -44,6 +44,7 @@ class MainViewController: UIViewController {
     }
     
     private func setup() {
+        manager.vc = self
         view.backgroundColor = .white
         scrollView.keyboardDismissMode = .onDrag
 

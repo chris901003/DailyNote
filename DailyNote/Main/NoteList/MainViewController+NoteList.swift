@@ -54,4 +54,9 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         cell.extendOrShrinkCell()
         tableView.endUpdates()
     }
+
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard indexPath.row == manager.notes.count - 1, !manager.loadData.isLoading, !manager.loadData.isEnd else { return }
+        Task { await manager.loadMoreNote() }
+    }
 }

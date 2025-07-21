@@ -27,6 +27,11 @@ class SUUsageCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        getTotalSize()
+    }
+
     private func setup() {
         titleLabel.text = "總使用量"
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -70,7 +75,7 @@ class SUUsageCell: UITableViewCell {
             do {
                 let totalSize = try localSaveManager.getTotalSpaceUsage()
                 await MainActor.run {
-                    bodyLabel.text = "\(totalSize) MB"
+                    bodyLabel.text = String(format: "%.2f MB", totalSize)
                     bodyLabel.alpha = 1
                     loadingView.alpha = 0
                     loadingView.stopAnimating()

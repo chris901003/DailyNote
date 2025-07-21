@@ -39,9 +39,18 @@ extension LocalSaveManager {
 private extension LocalSaveManager {
     func createNewNoteFolder(startTime: Date) throws -> URL {
         var index = 1
-        let timeStr = DateFormatterManager.shared.dateFormat(type: .yyyyMMddHHmm, date: startTime)
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: startTime)
+        let month = calendar.component(.month, from: startTime)
+        let day = calendar.component(.day, from: startTime)
+        let hour = String(format: "%02d", calendar.component(.hour, from: startTime))
+        let minute = String(format: "%02d", calendar.component(.minute, from: startTime))
+        let basePath = notePath
+            .appendingPathComponent("\(year)")
+            .appendingPathComponent("\(month)")
+            .appendingPathComponent("\(day)")
         while true {
-            let folderPath = notePath.appendingPathComponent("\(timeStr)-\(index)")
+            let folderPath = basePath.appendingPathComponent("\(hour)\(minute)-\(index)")
             if fileManager.fileExists(atPath: folderPath.path) { continue }
             index += 1
             try fileManager.createDirectory(at: folderPath, withIntermediateDirectories: true)

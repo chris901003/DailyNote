@@ -119,6 +119,13 @@ extension SettingUsageViewController: UITableViewDelegate, UITableViewDataSource
 
 extension SettingUsageViewController {
     private func deleteAllFile() {
-        print("✅ Delete all file")
+        do {
+            let localSaveManager = LocalSaveManager()
+            try localSaveManager.deleteAllFolder()
+            tableView.reloadData()
+            XOBottomBarInformationManager.showBottomInformation(type: .success, information: "刪除成功")
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: "刪除全部資料失敗")
+        }
     }
 }

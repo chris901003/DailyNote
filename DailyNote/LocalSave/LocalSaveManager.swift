@@ -51,6 +51,16 @@ extension LocalSaveManager {
         totalSize += try folderSize(at: notePath)
         return Double(totalSize) / 1024.0 / 1024.0
     }
+
+    func deleteAllFolder() throws {
+        let contents = try fileManager.contentsOfDirectory(at: notePath, includingPropertiesForKeys: nil, options: [])
+        print("=== 🗑️  Start Delete 🗑️ ===")
+        for url in contents {
+            print("🗑️ Delete: \(url.path())")
+            try fileManager.removeItem(at: url)
+        }
+        print("=== 🗑️ End Delete 🗑️ ===")
+    }
 }
 
 // MARK: - Private Utility Function

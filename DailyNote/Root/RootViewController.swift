@@ -18,8 +18,9 @@ class RootViewController: UITabBarController {
 
         let settingViewController = SettingViewController()
         settingViewController.tabBarItem = UITabBarItem(title: "設定", image: UIImage(systemName: "gear"), selectedImage: nil)
+        let settingNavigationController = UINavigationController(rootViewController: settingViewController)
 
-        viewControllers = [mainViewController, settingViewController]
+        viewControllers = [mainViewController, settingNavigationController]
 
         selectedIndex = 0
     }

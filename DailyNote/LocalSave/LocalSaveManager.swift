@@ -45,4 +45,26 @@ extension LocalSaveManager {
             return folderPath
         }
     }
+
+    func getTotalSpaceUsage() throws -> Double {
+        var totalSize: UInt64 = 0
+        totalSize += try folderSize(at: notePath)
+        return Double(totalSize) / 1024.0 / 1024.0
+    }
+}
+
+// MARK: - Private Utility Function
+private extension LocalSaveManager {
+    func folderSize(at folderURL: URL) throws -> UInt64 {
+        var size: UInt64 = 0
+        if let enumerator = fileManager.enumerator(at: folderURL, includingPropertiesForKeys: [.fileSizeKey], options: [], errorHandler: nil) {
+            for case let fileURL as URL in enumerator {
+                let resourceValues = try fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+                if resourceValues.isRegularFile ?? false {
+                    size += UInt64(resourceValues.fileSize ?? 0)
+                }
+            }
+        }
+        return size
+    }
 }

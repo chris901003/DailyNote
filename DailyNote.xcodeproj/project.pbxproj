@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		054424692E2DDAE3003644B7 /* xxooooxxCommonFunction in Frameworks */ = {isa = PBXBuildFile; productRef = 054424682E2DDAE3003644B7 /* xxooooxxCommonFunction */; };
+		0544246B2E2DDAE3003644B7 /* xxooooxxCommonUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0544246A2E2DDAE3003644B7 /* xxooooxxCommonUI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0573FF3F2E2524B000830D18 /* DailyNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				054424692E2DDAE3003644B7 /* xxooooxxCommonFunction in Frameworks */,
+				0544246B2E2DDAE3003644B7 /* xxooooxxCommonUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = DailyNote;
 			packageProductDependencies = (
+				054424682E2DDAE3003644B7 /* xxooooxxCommonFunction */,
+				0544246A2E2DDAE3003644B7 /* xxooooxxCommonUI */,
 			);
 			productName = DailyNote;
 			productReference = 0573FF3F2E2524B000830D18 /* DailyNote.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 0573FF362E2524B000830D18;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				054424672E2DDAE3003644B7 /* XCLocalSwiftPackageReference "../xxooooxxiOSLibrary" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0573FF402E2524B000830D18 /* Products */;
 			projectDirPath = "";
@@ -337,6 +349,24 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		054424672E2DDAE3003644B7 /* XCLocalSwiftPackageReference "../xxooooxxiOSLibrary" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../xxooooxxiOSLibrary;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		054424682E2DDAE3003644B7 /* xxooooxxCommonFunction */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = xxooooxxCommonFunction;
+		};
+		0544246A2E2DDAE3003644B7 /* xxooooxxCommonUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = xxooooxxCommonUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0573FF372E2524B000830D18 /* Project object */;
 }

@@ -67,7 +67,7 @@ class MNLTimeCell: UITableViewCell {
             leftSepLineView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor),
             leftSepLineView.centerYAnchor.constraint(equalTo: mainContentView.centerYAnchor),
             leftSepLineView.trailingAnchor.constraint(equalTo: labelView.leadingAnchor, constant: -8),
-            leftSepLineView.heightAnchor.constraint(equalToConstant: 5)
+            leftSepLineView.heightAnchor.constraint(equalToConstant: 3)
         ])
 
         mainContentView.addSubview(rightSepLineView)
@@ -76,7 +76,7 @@ class MNLTimeCell: UITableViewCell {
             rightSepLineView.leadingAnchor.constraint(equalTo: labelView.trailingAnchor, constant: 8),
             rightSepLineView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor),
             rightSepLineView.centerYAnchor.constraint(equalTo: mainContentView.centerYAnchor),
-            rightSepLineView.heightAnchor.constraint(equalToConstant: 5)
+            rightSepLineView.heightAnchor.constraint(equalToConstant: 3)
         ])
     }
 }

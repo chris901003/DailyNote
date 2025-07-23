@@ -11,3 +11,9 @@ import Foundation
 class CalendarManager {
     var currentDate = Date.now
 }
+
+extension CalendarManager {
+    func getNumberOfDayCells() -> Int {
+        currentDate.numberOfDaysInMonth() + currentDate.weekdayOfFirstDay()
+    }
+}

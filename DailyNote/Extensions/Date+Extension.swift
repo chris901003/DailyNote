@@ -24,3 +24,21 @@ extension Date {
         Calendar.current.isDate(self, inSameDayAs: target)
     }
 }
+
+extension Date {
+    func numberOfDaysInMonth() -> Int {
+        let calendar = Calendar.current
+        if let range = calendar.range(of: .day, in: .month, for: self) {
+            return range.count
+        }
+        return 30
+    }
+
+    func weekdayOfFirstDay() -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: self)
+        guard let firstDayOfMonth = calendar.date(from: components) else { return 0 }
+        let weekday = calendar.component(.weekday, from: firstDayOfMonth)
+        return weekday - 1
+    }
+}

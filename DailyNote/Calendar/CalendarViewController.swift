@@ -153,7 +153,7 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
             case .titleSection:
                 return 7
             case .dateSection:
-                return 30
+                return manager.getNumberOfDayCells()
         }
     }
 

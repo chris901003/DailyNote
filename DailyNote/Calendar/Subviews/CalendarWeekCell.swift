@@ -13,6 +13,7 @@ class CalendarWeekCell: UICollectionViewCell {
     static let cellId = "CalendarWeekCellId"
 
     let label = UILabel()
+    let weekday = ["日", "一", "二", "三", "四", "五", "六"]
 
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -22,6 +23,10 @@ class CalendarWeekCell: UICollectionViewCell {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func config(idx: Int) {
+        label.text = weekday[idx]
     }
 
     private func setup() {

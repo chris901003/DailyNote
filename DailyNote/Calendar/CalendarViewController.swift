@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 extension CalendarViewController {
-    enum CollectionViewSectioins: CaseIterable {
+    enum CollectionViewSections: CaseIterable {
         case titleSection, dateSection
 
         var getSectionLayoutConfig: NSCollectionLayoutSection {
@@ -43,9 +43,12 @@ extension CalendarViewController {
 }
 
 class CalendarViewController: UIViewController {
+    let leftIcon = UIImageView()
+    let yearAndMonthLabel = UILabel()
+    let rightIcon = UIImageView()
     let collectionView: UICollectionView = {
         var layout = UICollectionViewCompositionalLayout { sectionIdx, _ in
-            CollectionViewSectioins.allCases[sectionIdx].getSectionLayoutConfig
+            CollectionViewSections.allCases[sectionIdx].getSectionLayoutConfig
         }
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsVerticalScrollIndicator = false
@@ -54,6 +57,7 @@ class CalendarViewController: UIViewController {
         return collectionView
     }()
 
+    let manager = CalendarManager()
     var collectionViewHeightConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
@@ -71,15 +75,54 @@ class CalendarViewController: UIViewController {
     private func setup() {
         view.backgroundColor = .white
 
+        leftIcon.image = UIImage(systemName: "chevron.left")?.withTintColor(.black, renderingMode: .alwaysOriginal)
+        leftIcon.contentMode = .scaleAspectFit
+        leftIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapLeftAction)))
+        leftIcon.isUserInteractionEnabled = true
+
+        rightIcon.image = UIImage(systemName: "chevron.right")?.withTintColor(.black, renderingMode: .alwaysOriginal)
+        rightIcon.contentMode = .scaleAspectFit
+        rightIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapRightAction)))
+        rightIcon.isUserInteractionEnabled = true
+
+        yearAndMonthLabel.text = DateFormatterManager.shared.dateFormat(type: .yyyy_MM_ch, date: manager.currentDate)
+        yearAndMonthLabel.font = .systemFont(ofSize: 20, weight: .bold)
+
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.isScrollEnabled = false
     }
 
     private func layout() {
+        view.addSubview(yearAndMonthLabel)
+        yearAndMonthLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            yearAndMonthLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            yearAndMonthLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+
+        view.addSubview(leftIcon)
+        leftIcon.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            leftIcon.centerYAnchor.constraint(equalTo: yearAndMonthLabel.centerYAnchor),
+            leftIcon.trailingAnchor.constraint(equalTo: yearAndMonthLabel.leadingAnchor, constant: -8),
+            leftIcon.heightAnchor.constraint(equalToConstant: 25),
+            leftIcon.widthAnchor.constraint(equalToConstant: 25)
+        ])
+
+        view.addSubview(rightIcon)
+        rightIcon.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            rightIcon.centerYAnchor.constraint(equalTo: yearAndMonthLabel.centerYAnchor),
+            rightIcon.leadingAnchor.constraint(equalTo: yearAndMonthLabel.trailingAnchor, constant: 8),
+            rightIcon.heightAnchor.constraint(equalToConstant: 25),
+            rightIcon.widthAnchor.constraint(equalToConstant: 25)
+        ])
+
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: yearAndMonthLabel.bottomAnchor, constant: 12),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
@@ -88,16 +131,50 @@ class CalendarViewController: UIViewController {
     }
 }
 
+extension CalendarViewController {
+    @objc private func tapLeftAction() {
+        print("✅ Left Action")
+    }
+
+    @objc private func tapRightAction() {
+        print("✅ Right Action")
+    }
+}
+
 // MARK: - UICollectionViewDelegate, UICollectionViewDataSource
 extension CalendarViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        CollectionViewSections.allCases.count
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        7
+        let sectionType = CollectionViewSections.allCases[section]
+        switch sectionType {
+            case .titleSection:
+                return 7
+            case .dateSection:
+                return 30
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CalendarWeekCell.cellId, for: indexPath) as? CalendarWeekCell else {
-            return UICollectionViewCell()
+        let sectionType = CollectionViewSections.allCases[indexPath.section]
+        switch sectionType {
+            case .titleSection:
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: CalendarWeekCell.cellId, for: indexPath
+                ) as? CalendarWeekCell else {
+                    return UICollectionViewCell()
+                }
+                cell.config(idx: indexPath.row)
+                return cell
+            case .dateSection:
+                guard let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: CalendarDayCell.cellId, for: indexPath
+                ) as? CalendarDayCell else {
+                    return UICollectionViewCell()
+                }
+                return cell
         }
-        return cell
     }
 }

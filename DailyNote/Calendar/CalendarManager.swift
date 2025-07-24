@@ -9,10 +9,18 @@
 import Foundation
 
 class CalendarManager {
+    let calendar = Calendar.current
+    let localSaveManager = LocalSaveManager()
+
     var currentDate: Date
+    var numberOfNotes: [Int: Int] = [:]
 
     init() {
         currentDate = .now.getFirstDayOfMonth() ?? .now
+    }
+
+    func loadInitData() async throws {
+        try await loadMonthData()
     }
 }
 
@@ -23,5 +31,23 @@ extension CalendarManager {
 
     func getSkipDays() -> Int {
         currentDate.weekdayOfFirstDay()
+    }
+}
+
+// MARK: - Load Month Data
+extension CalendarManager {
+    func loadMonthData() async throws {
+        numberOfNotes = [:]
+        let year = calendar.component(.year, from: currentDate)
+        let month = String(format: "%02d", calendar.component(.month, from: currentDate))
+        let monthPath = localSaveManager.notePath.appendingPathComponent("\(year)").appendingPathComponent("\(month)")
+        let days = try localSaveManager.getFolders(url: monthPath)
+        days.forEach { day in
+            let dayPath = monthPath.appendingPathComponent(day)
+            if let notes = try? localSaveManager.getFolders(url: dayPath),
+               let dayInt = Int(day) {
+                numberOfNotes[dayInt] = notes.count
+            }
+        }
     }
 }

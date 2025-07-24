@@ -34,6 +34,7 @@ class CalendarDayCell: UICollectionViewCell {
     func config(day: String, amount: String) {
         dayLabel.text = day
         amountLabel.text = amount
+        amountLabel.textColor = amount == "0" ? .secondaryLabel : .black
     }
 
     private func setup() {

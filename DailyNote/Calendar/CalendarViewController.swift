@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import xxooooxxCommonUI
 
 extension CalendarViewController {
     enum CollectionViewSections: CaseIterable {
@@ -64,6 +65,17 @@ class CalendarViewController: UIViewController {
         super.viewDidLoad()
         setup()
         layout()
+        Task.detached { [weak self] in
+            guard let self else { return }
+            do {
+                try await manager.loadInitData()
+                await MainActor.run { [weak self] in
+                    self?.collectionView.reloadData()
+                }
+            } catch {
+                XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+            }
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -193,7 +205,11 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
                     return UICollectionViewCell()
                 }
                 let day = indexPath.row - manager.getSkipDays() + 1
-                cell.config(day: day > 0 ? "\(day)" : "", amount: day > 0 ? "0" : "")
+                if day > 0 {
+                    cell.config(day: "\(day)", amount: "\(manager.numberOfNotes[day, default: 0])")
+                } else {
+                    cell.config(day: "", amount: "")
+                }
                 return cell
         }
     }

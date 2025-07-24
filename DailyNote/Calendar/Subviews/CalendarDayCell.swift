@@ -31,13 +31,24 @@ class CalendarDayCell: UICollectionViewCell {
         amountLabel.text = ""
     }
 
-    func config(day: String, amount: String) {
+    func config(day: String, amount: String, isSelected: Bool) {
         dayLabel.text = day
         amountLabel.text = amount
         amountLabel.textColor = amount == "0" ? .secondaryLabel : .black
+        contentView.backgroundColor = isSelected ? .green.withAlphaComponent(0.3) : .clear
+    }
+
+    func selected() {
+        contentView.backgroundColor = .green.withAlphaComponent(0.3)
+    }
+
+    func deSelected() {
+        contentView.backgroundColor = .clear
     }
 
     private func setup() {
+        contentView.layer.cornerRadius = 10.0
+
         dayLabel.text = "1"
         dayLabel.font = .systemFont(ofSize: 18, weight: .bold)
         dayLabel.textAlignment = .center

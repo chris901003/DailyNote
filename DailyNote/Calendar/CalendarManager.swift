@@ -13,10 +13,13 @@ class CalendarManager {
     let localSaveManager = LocalSaveManager()
 
     var currentDate: Date
-    var numberOfNotes: [Int: Int] = [:]
+    var selectedDate: Date
+    var numberOfNotes: [Int: Int]
 
     init() {
         currentDate = .now.getFirstDayOfMonth() ?? .now
+        selectedDate = .now.getStartOfDay()
+        numberOfNotes = [:]
     }
 
     func loadInitData() async throws {
@@ -31,6 +34,11 @@ extension CalendarManager {
 
     func getSkipDays() -> Int {
         currentDate.weekdayOfFirstDay()
+    }
+
+    func isSelected(day: Int) -> Bool {
+        calendar.isDate(currentDate, equalTo: selectedDate, toGranularity: .month)
+        && calendar.component(.day, from: selectedDate) == day
     }
 }
 

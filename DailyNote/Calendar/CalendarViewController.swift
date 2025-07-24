@@ -206,11 +206,36 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
                 }
                 let day = indexPath.row - manager.getSkipDays() + 1
                 if day > 0 {
-                    cell.config(day: "\(day)", amount: "\(manager.numberOfNotes[day, default: 0])")
+                    cell.config(day: "\(day)", amount: "\(manager.numberOfNotes[day, default: 0])", isSelected: manager.isSelected(day: day))
                 } else {
-                    cell.config(day: "", amount: "")
+                    cell.config(day: "", amount: "", isSelected: false)
                 }
                 return cell
         }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.section != 0,
+              indexPath.row >= manager.getSkipDays() else { return }
+        let calendar = Calendar.current
+        let lastDay = calendar.component(.day, from: manager.selectedDate)
+        let lastSelectedIndex = IndexPath(row: lastDay + manager.getSkipDays() - 1, section: 1)
+        if let lastSelectedCell = collectionView.cellForItem(at: lastSelectedIndex) as? CalendarDayCell,
+           let cell = collectionView.cellForItem(at: indexPath) as? CalendarDayCell {
+            lastSelectedCell.deSelected()
+            cell.selected()
+            updateSelectedDay(selectedDay: indexPath.row - manager.getSkipDays() + 1)
+        }
+    }
+
+    private func updateSelectedDay(selectedDay: Int) {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: manager.currentDate)
+        let month = calendar.component(.month, from: manager.currentDate)
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = selectedDay
+        manager.selectedDate = calendar.date(from: components) ?? .now
     }
 }

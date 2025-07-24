@@ -9,11 +9,19 @@
 import Foundation
 
 class CalendarManager {
-    var currentDate = Date.now
+    var currentDate: Date
+
+    init() {
+        currentDate = .now.getFirstDayOfMonth() ?? .now
+    }
 }
 
 extension CalendarManager {
     func getNumberOfDayCells() -> Int {
         currentDate.numberOfDaysInMonth() + currentDate.weekdayOfFirstDay()
+    }
+
+    func getSkipDays() -> Int {
+        currentDate.weekdayOfFirstDay()
     }
 }

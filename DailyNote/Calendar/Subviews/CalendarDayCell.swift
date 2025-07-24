@@ -25,6 +25,17 @@ class CalendarDayCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        dayLabel.text = ""
+        amountLabel.text = ""
+    }
+
+    func config(day: String, amount: String) {
+        dayLabel.text = day
+        amountLabel.text = amount
+    }
+
     private func setup() {
         dayLabel.text = "1"
         dayLabel.font = .systemFont(ofSize: 18, weight: .bold)

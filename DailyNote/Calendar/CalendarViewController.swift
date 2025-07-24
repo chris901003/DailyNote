@@ -131,13 +131,31 @@ class CalendarViewController: UIViewController {
     }
 }
 
+// MARK: - Change Month
 extension CalendarViewController {
     @objc private func tapLeftAction() {
-        print("✅ Left Action")
+        guard let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: manager.currentDate) else {
+            return
+        }
+        manager.currentDate = lastMonth
+        updateMonth()
     }
 
     @objc private func tapRightAction() {
-        print("✅ Right Action")
+        guard let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: manager.currentDate) else {
+            return
+        }
+        manager.currentDate = nextMonth
+        updateMonth()
+    }
+
+    private func updateMonth() {
+        yearAndMonthLabel.text = DateFormatterManager.shared.dateFormat(type: .yyyy_MM_ch, date: manager.currentDate)
+        collectionView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            collectionViewHeightConstraint.constant = collectionView.contentSize.height
+        }
     }
 }
 
@@ -174,6 +192,8 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
                 ) as? CalendarDayCell else {
                     return UICollectionViewCell()
                 }
+                let day = indexPath.row - manager.getSkipDays() + 1
+                cell.config(day: day > 0 ? "\(day)" : "", amount: day > 0 ? "0" : "")
                 return cell
         }
     }

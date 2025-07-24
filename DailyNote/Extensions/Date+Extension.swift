@@ -34,11 +34,14 @@ extension Date {
         return 30
     }
 
-    func weekdayOfFirstDay() -> Int {
+    func getFirstDayOfMonth() -> Date? {
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month], from: self)
-        guard let firstDayOfMonth = calendar.date(from: components) else { return 0 }
-        let weekday = calendar.component(.weekday, from: firstDayOfMonth)
+        return calendar.date(from: calendar.dateComponents([.year, .month], from: self))
+    }
+
+    func weekdayOfFirstDay() -> Int {
+        guard let firstDayOfMonth = self.getFirstDayOfMonth() else { return 0 }
+        let weekday = Calendar.current.component(.weekday, from: firstDayOfMonth)
         return weekday - 1
     }
 }

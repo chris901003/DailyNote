@@ -14,9 +14,22 @@ protocol CalendarNoteViewDelegate: AnyObject {
 }
 
 class CalendarNoteView: UIView {
-    var noteData: [NoteData] = []
+    var noteData: [NoteData] = [] {
+        didSet {
+            emptyLabel.alpha = noteData.isEmpty ? 1 : 0
+            tableView.alpha = noteData.isEmpty ? 0 : 1
+            if noteData.isEmpty {
+                delegate?.updateContentHeight(height: 50)
+            } else {
+                tableView.reloadData()
+                tableView.layoutIfNeeded()
+                delegate?.updateContentHeight(height: tableView.contentSize.height)
+            }
+        }
+    }
     weak var delegate: CalendarNoteViewDelegate?
 
+    let emptyLabel = UILabel()
     let tableView = UITableView()
 
     init() {
@@ -39,11 +52,23 @@ class CalendarNoteView: UIView {
     }
 
     private func setup() {
+        emptyLabel.text = "這天沒有留下任何紀錄🫧"
+        emptyLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        emptyLabel.textAlignment = .center
+        emptyLabel.alpha = 0
+
         tableView.delegate = self
         tableView.dataSource = self
     }
 
     private func layout() {
+        addSubview(emptyLabel)
+        emptyLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            emptyLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            emptyLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+
         addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([

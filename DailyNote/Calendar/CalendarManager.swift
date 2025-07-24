@@ -7,23 +7,47 @@
 
 
 import Foundation
+import xxooooxxCommonUI
 
 class CalendarManager {
     let calendar = Calendar.current
     let localSaveManager = LocalSaveManager()
 
-    var currentDate: Date
-    var selectedDate: Date
+    var currentDate: Date {
+        didSet {
+            Task {
+                do {
+                    try await loadMonthData()
+                    await MainActor.run { vc?.collectionView.reloadData() }
+                } catch {
+                    XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+                }
+            }
+        }
+    }
+    var selectedDate: Date {
+        didSet {
+            Task {
+                await loadDayNote()
+                await MainActor.run { vc?.noteView.config(noteData: dayNotes) }
+            }
+        }
+    }
     var numberOfNotes: [Int: Int]
+    var dayNotes: [NoteData]
+
+    weak var vc: CalendarViewController?
 
     init() {
         currentDate = .now.getFirstDayOfMonth() ?? .now
         selectedDate = .now.getStartOfDay()
         numberOfNotes = [:]
+        dayNotes = []
     }
 
     func loadInitData() async throws {
         try await loadMonthData()
+        await loadDayNote()
     }
 }
 
@@ -56,6 +80,20 @@ extension CalendarManager {
                let dayInt = Int(day) {
                 numberOfNotes[dayInt] = notes.count
             }
+        }
+    }
+}
+
+// MARK: - Load Day Note
+extension CalendarManager {
+    func loadDayNote() async {
+        let year = String(calendar.component(.year, from: selectedDate))
+        let month = String(format: "%02d", calendar.component(.month, from: selectedDate))
+        let day = String(format: "%02d", calendar.component(.day, from: selectedDate))
+        do {
+            dayNotes = try localSaveManager.loadDayNotes(year: year, month: month, day: day)
+        } catch {
+            dayNotes = []
         }
     }
 }

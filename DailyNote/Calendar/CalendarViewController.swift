@@ -41,7 +41,9 @@ class CalendarViewController: UIViewController {
             do {
                 try await manager.loadInitData()
                 await MainActor.run { [weak self] in
-                    self?.collectionView.reloadData()
+                    guard let self else { return }
+                    collectionView.reloadData()
+                    noteView.config(noteData: manager.dayNotes)
                 }
             } catch {
                 XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
@@ -56,6 +58,7 @@ class CalendarViewController: UIViewController {
     }
 
     private func setup() {
+        manager.vc = self
         view.backgroundColor = .white
 
         leftIcon.image = UIImage(systemName: "chevron.left")?.withTintColor(.black, renderingMode: .alwaysOriginal)

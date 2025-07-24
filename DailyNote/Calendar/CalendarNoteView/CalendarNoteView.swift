@@ -18,13 +18,9 @@ class CalendarNoteView: UIView {
         didSet {
             emptyLabel.alpha = noteData.isEmpty ? 1 : 0
             tableView.alpha = noteData.isEmpty ? 0 : 1
-            if noteData.isEmpty {
-                delegate?.updateContentHeight(height: 50)
-            } else {
-                tableView.reloadData()
-                tableView.layoutIfNeeded()
-                delegate?.updateContentHeight(height: tableView.contentSize.height)
-            }
+            tableView.reloadData()
+            tableView.layoutIfNeeded()
+            delegate?.updateContentHeight(height: max(tableView.contentSize.height, 50))
         }
     }
     weak var delegate: CalendarNoteViewDelegate?
@@ -44,7 +40,7 @@ class CalendarNoteView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        delegate?.updateContentHeight(height: tableView.contentSize.height)
+        delegate?.updateContentHeight(height: max(tableView.contentSize.height, 50))
     }
 
     func config(noteData: [NoteData]) {
@@ -83,7 +79,7 @@ class CalendarNoteView: UIView {
 // MARK: - UITableViewDelegate, UITableViewDataSource
 extension CalendarNoteView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        3
+        noteData.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

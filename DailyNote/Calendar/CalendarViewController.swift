@@ -11,6 +11,8 @@ import UIKit
 import xxooooxxCommonUI
 
 class CalendarViewController: UIViewController {
+    let scrollView = UIScrollView()
+    let mainContentView = UIView()
     let leftIcon = UIImageView()
     let yearAndMonthLabel = UILabel()
     let rightIcon = UIImageView()
@@ -24,9 +26,11 @@ class CalendarViewController: UIViewController {
         collectionView.register(CalendarDayCell.self, forCellWithReuseIdentifier: CalendarDayCell.cellId)
         return collectionView
     }()
+    let noteView = CalendarNoteView()
 
     let manager = CalendarManager()
     var collectionViewHeightConstraint: NSLayoutConstraint!
+    var noteViewHeightConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,17 +74,41 @@ class CalendarViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isScrollEnabled = false
+
+        noteView.delegate = self
     }
 
     private func layout() {
-        view.addSubview(yearAndMonthLabel)
-        yearAndMonthLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            yearAndMonthLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            yearAndMonthLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
-        view.addSubview(leftIcon)
+        scrollView.addSubview(mainContentView)
+        mainContentView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            mainContentView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            mainContentView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            mainContentView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            mainContentView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            mainContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        let mainContentViewHeightConstraint = mainContentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        mainContentViewHeightConstraint.priority = .defaultLow
+        mainContentViewHeightConstraint.isActive = true
+
+        mainContentView.addSubview(yearAndMonthLabel)
+        yearAndMonthLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            yearAndMonthLabel.topAnchor.constraint(equalTo: mainContentView.topAnchor),
+            yearAndMonthLabel.centerXAnchor.constraint(equalTo: mainContentView.centerXAnchor)
+        ])
+
+        mainContentView.addSubview(leftIcon)
         leftIcon.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             leftIcon.centerYAnchor.constraint(equalTo: yearAndMonthLabel.centerYAnchor),
@@ -89,7 +117,7 @@ class CalendarViewController: UIViewController {
             leftIcon.widthAnchor.constraint(equalToConstant: 25)
         ])
 
-        view.addSubview(rightIcon)
+        mainContentView.addSubview(rightIcon)
         rightIcon.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             rightIcon.centerYAnchor.constraint(equalTo: yearAndMonthLabel.centerYAnchor),
@@ -98,15 +126,26 @@ class CalendarViewController: UIViewController {
             rightIcon.widthAnchor.constraint(equalToConstant: 25)
         ])
 
-        view.addSubview(collectionView)
+        mainContentView.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: yearAndMonthLabel.bottomAnchor, constant: 12),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            collectionView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor)
         ])
         collectionViewHeightConstraint = collectionView.heightAnchor.constraint(equalToConstant: 100)
         collectionViewHeightConstraint.isActive = true
+
+        mainContentView.addSubview(noteView)
+        noteView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            noteView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
+            noteView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor),
+            noteView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor),
+            mainContentView.bottomAnchor.constraint(greaterThanOrEqualTo: noteView.bottomAnchor)
+        ])
+        noteViewHeightConstraint = noteView.heightAnchor.constraint(equalToConstant: 100)
+        noteViewHeightConstraint.isActive = true
     }
 }
 
@@ -134,6 +173,15 @@ extension CalendarViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             collectionViewHeightConstraint.constant = collectionView.contentSize.height
+        }
+    }
+}
+
+// MARK: - CalendarNoteViewDelegate
+extension CalendarViewController: CalendarNoteViewDelegate {
+    func updateContentHeight(height: CGFloat) {
+        DispatchQueue.main.async { [weak self] in
+            self?.noteViewHeightConstraint.constant = height
         }
     }
 }

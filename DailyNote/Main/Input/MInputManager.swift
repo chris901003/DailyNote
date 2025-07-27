@@ -85,6 +85,7 @@ class MInputManager {
         DNNotification.sendNewNote(newNote: noteData)
 
         inputData = MainInputData.newInput()
+        selectedImageIds = []
         vc?.textView.text = ""
         vc?.label.text = vc?.placeholder
         vc?.textView.resignFirstResponder()

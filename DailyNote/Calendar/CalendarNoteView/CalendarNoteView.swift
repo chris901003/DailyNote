@@ -32,6 +32,7 @@ class CalendarNoteView: UIView {
         super.init(frame: .zero)
         setup()
         layout()
+        registerCell()
     }
 
     required init?(coder: NSCoder) {
@@ -40,11 +41,12 @@ class CalendarNoteView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        tableView.layoutIfNeeded()
         delegate?.updateContentHeight(height: max(tableView.contentSize.height, 50))
     }
 
     func config(noteData: [NoteData]) {
-        self.noteData = noteData
+        self.noteData = noteData.reversed()
     }
 
     private func setup() {
@@ -53,6 +55,7 @@ class CalendarNoteView: UIView {
         emptyLabel.textAlignment = .center
         emptyLabel.alpha = 0
 
+        tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -74,6 +77,10 @@ class CalendarNoteView: UIView {
             tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
+
+    private func registerCell() {
+        tableView.register(CalendarNoteCell.self, forCellReuseIdentifier: CalendarNoteCell.cellId)
+    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
@@ -83,8 +90,10 @@ extension CalendarNoteView: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = "Just for test"
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CalendarNoteCell.cellId, for: indexPath) as? CalendarNoteCell else {
+            return UITableViewCell()
+        }
+        cell.config(noteData: noteData[indexPath.row])
         return cell
     }
 }

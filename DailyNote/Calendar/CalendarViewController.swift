@@ -196,3 +196,10 @@ extension CalendarViewController: CalendarNoteViewDelegate {
         }
     }
 }
+
+// MARK: - PresentableVC
+extension CalendarViewController: PresentableVC {
+    func presentVC(_ vc: UIViewController) {
+        present(vc, animated: true)
+    }
+}

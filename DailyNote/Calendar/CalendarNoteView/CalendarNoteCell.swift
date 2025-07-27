@@ -17,9 +17,11 @@ class CalendarNoteCell: UITableViewCell {
     let noteLabel = UILabel()
     let photoView = UIImageView()
 
+    var noteData: NoteData?
     var noteLabelTrailingConstraint: NSLayoutConstraint!
     var noteBottomConstraint: NSLayoutConstraint!
     var photoBottomConstraint: NSLayoutConstraint!
+    weak var delegate: PresentableVC?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -32,6 +34,7 @@ class CalendarNoteCell: UITableViewCell {
     }
 
     func config(noteData: NoteData) {
+        self.noteData = noteData
         let startDateStr = DateFormatterManager.shared.dateFormat(type: .HH_mm, date: noteData.startDate)
         let endDateStr = DateFormatterManager.shared.dateFormat(type: .HH_mm, date: noteData.endDate)
         dateLabel.text = "\(startDateStr) ~ \(endDateStr)"
@@ -52,6 +55,7 @@ class CalendarNoteCell: UITableViewCell {
 
     private func setup() {
         selectionStyle = .none
+        contentView.isUserInteractionEnabled = false
 
         dateLabel.text = "07:20 ~ 08:45"
         dateLabel.textColor = .secondaryLabel
@@ -68,6 +72,8 @@ class CalendarNoteCell: UITableViewCell {
         photoView.contentMode = .scaleAspectFill
         photoView.layer.cornerRadius = 10.0
         photoView.clipsToBounds = true
+        photoView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapPhotoView)))
+        photoView.isUserInteractionEnabled = true
     }
 
     private func layout() {
@@ -117,5 +123,20 @@ class CalendarNoteCell: UITableViewCell {
             photoBottomConstraint,
             minHeightConstraint
         ])
+    }
+}
+
+extension CalendarNoteCell {
+    @objc func tapPhotoView() {
+        guard let images = noteData?.images else { return }
+        let photoListVC = MNLPhotoListViewController(images: images)
+        if let sheet = photoListVC.sheetPresentationController {
+            sheet.detents = [
+                .custom(resolver: { context in
+                    UIScreen.main.bounds.height / 2
+                })
+            ]
+        }
+        delegate?.presentVC(photoListVC)
     }
 }

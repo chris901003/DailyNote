@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-protocol CalendarNoteViewDelegate: AnyObject {
+protocol CalendarNoteViewDelegate: PresentableVC {
     func updateContentHeight(height: CGFloat)
 }
 
@@ -95,6 +95,14 @@ extension CalendarNoteView: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         cell.config(noteData: noteData[indexPath.row])
+        cell.delegate = self
         return cell
+    }
+}
+
+// MARK: - PresentableVC
+extension CalendarNoteView: PresentableVC {
+    func presentVC(_ vc: UIViewController) {
+        delegate?.presentVC(vc)
     }
 }

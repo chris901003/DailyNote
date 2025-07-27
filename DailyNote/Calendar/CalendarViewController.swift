@@ -27,6 +27,7 @@ class CalendarViewController: UIViewController {
         return collectionView
     }()
     let noteView = CalendarNoteView()
+    let editButton = CalendarEditButton()
 
     let manager = CalendarManager()
     var collectionViewHeightConstraint: NSLayoutConstraint!
@@ -144,11 +145,18 @@ class CalendarViewController: UIViewController {
         NSLayoutConstraint.activate([
             noteView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 8),
             noteView.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor),
-            noteView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor),
-            mainContentView.bottomAnchor.constraint(greaterThanOrEqualTo: noteView.bottomAnchor)
+            noteView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor)
         ])
         noteViewHeightConstraint = noteView.heightAnchor.constraint(equalToConstant: 100)
         noteViewHeightConstraint.isActive = true
+
+        mainContentView.addSubview(editButton)
+        editButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            editButton.topAnchor.constraint(equalTo: noteView.bottomAnchor),
+            editButton.centerXAnchor.constraint(equalTo: mainContentView.centerXAnchor),
+            editButton.bottomAnchor.constraint(lessThanOrEqualTo: mainContentView.bottomAnchor, constant: -8)
+        ])
     }
 }
 

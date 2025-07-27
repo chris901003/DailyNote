@@ -80,6 +80,9 @@ class CalendarViewController: UIViewController {
         collectionView.isScrollEnabled = false
 
         noteView.delegate = self
+
+        editButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapEditAction)))
+        editButton.isUserInteractionEnabled = true
     }
 
     private func layout() {
@@ -157,6 +160,22 @@ class CalendarViewController: UIViewController {
             editButton.centerXAnchor.constraint(equalTo: mainContentView.centerXAnchor),
             editButton.bottomAnchor.constraint(lessThanOrEqualTo: mainContentView.bottomAnchor, constant: -8)
         ])
+    }
+
+    @objc private func tapEditAction() {
+        let calendar = manager.calendar
+        let year = String(calendar.component(.year, from: manager.selectedDate))
+        let month = String(format: "%02d", calendar.component(.month, from: manager.selectedDate))
+        let day = String(format: "%02d", calendar.component(.day, from: manager.selectedDate))
+        let editViewController = CalendarEditViewController(year: year, month: month, day: day)
+        if let sheet = editViewController.sheetPresentationController {
+            sheet.detents = [
+                .custom(resolver: { context in
+                    UIScreen.main.bounds.height / 2
+                })
+            ]
+        }
+        present(editViewController, animated: true)
     }
 }
 

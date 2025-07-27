@@ -1,0 +1,28 @@
+// Created for DailyNote in 2025
+// Using Swift 6.0
+//
+//
+// Created by HongYan on 2025/7/27.
+// Copyright © 2025 HongYan. All rights reserved.
+
+
+import Foundation
+
+class CalendarEditManager {
+    let localSaveManager = LocalSaveManager()
+
+    let year: String
+    let month: String
+    let day: String
+    var notes: [NoteData] = []
+
+    init(year: String, month: String, day: String) {
+        self.year = year
+        self.month = month
+        self.day = day
+    }
+
+    func loadNotes() async throws {
+        notes = try localSaveManager.loadDayNotes(year: year, month: month, day: day)
+    }
+}

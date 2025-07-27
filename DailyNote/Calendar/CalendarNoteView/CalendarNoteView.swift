@@ -58,6 +58,7 @@ class CalendarNoteView: UIView {
         tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.isScrollEnabled = false
     }
 
     private func layout() {

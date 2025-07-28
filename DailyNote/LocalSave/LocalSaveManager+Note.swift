@@ -14,18 +14,20 @@ struct LocalSaveNoteData: Codable {
     let startDate: Date
     let endDate: Date
     let numberOfImages: Int
+    var folderName: String
 
     static func createFrom(data: NoteData) -> LocalSaveNoteData {
-        .init(note: data.note, startDate: data.startDate, endDate: data.endDate, numberOfImages: data.images.count)
+        .init(note: data.note, startDate: data.startDate, endDate: data.endDate, numberOfImages: data.images.count, folderName: data.folderName)
     }
 }
 
 // MARK: - Note
 extension LocalSaveManager {
     func createNewNote(note: NoteData) throws {
-        let saveNoteData = LocalSaveNoteData.createFrom(data: note)
-        let jsonData = try encoder.encode(saveNoteData)
+        var saveNoteData = LocalSaveNoteData.createFrom(data: note)
         let basePath = try createNewNoteFolder(startTime: note.startDate)
+        saveNoteData.folderName = basePath.lastPathComponent
+        let jsonData = try encoder.encode(saveNoteData)
         let dataPath = basePath.appendingPathComponent("note.json")
         try jsonData.write(to: dataPath)
         for (index, image) in note.images.enumerated() {
@@ -57,7 +59,9 @@ extension LocalSaveManager {
                 images.append(UIImage(contentsOfFile: imageURL.path))
             }
             let imgs = images.compactMap { $0 }
-            return NoteData(note: noteData.note, images: imgs, startDate: noteData.startDate, endDate: noteData.endDate)
+            return NoteData(
+                note: noteData.note, images: imgs, startDate: noteData.startDate, endDate: noteData.endDate, folderName: noteData.folderName
+            )
         }
     }
 }

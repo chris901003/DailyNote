@@ -14,4 +14,13 @@ struct NoteData {
     let images: [UIImage]
     let startDate: Date
     let endDate: Date
+    let folderName: String
+
+    init(note: String, images: [UIImage], startDate: Date, endDate: Date, folderName: String = "") {
+        self.note = note
+        self.images = images
+        self.startDate = startDate
+        self.endDate = endDate
+        self.folderName = folderName
+    }
 }

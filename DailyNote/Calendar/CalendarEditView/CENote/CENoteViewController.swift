@@ -21,6 +21,7 @@ class CENoteViewController: UIViewController {
     let photoIcon = UIImageView()
 
     var noteTextViewHeightConstraint: NSLayoutConstraint!
+    let photoPickerManager = BasePhotoPickerManager()
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -47,6 +48,8 @@ class CENoteViewController: UIViewController {
     }
 
     private func setup() {
+        photoPickerManager.delegate = self
+
         blurView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapBlurViewAction)))
         blurView.isUserInteractionEnabled = true
 
@@ -169,11 +172,11 @@ class CENoteViewController: UIViewController {
 extension CENoteViewController {
     @objc private func tapPhotoAction() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let photoLibrary = UIAlertAction(title: "從相簿選擇", style: .default) { _ in
-            print("✅ Photo library")
+        let photoLibrary = UIAlertAction(title: "從相簿選擇", style: .default) { [weak self] _ in
+            self?.photoPickerManager.showPhotoLibrary()
         }
-        let photoList = UIAlertAction(title: "照片列表", style: .default) { _ in
-            print("✅ Photo list")
+        let photoList = UIAlertAction(title: "照片列表", style: .default) { [weak self] _ in
+            self?.photoPickerManager.showPhotoList()
         }
         let cancel = UIAlertAction(title: "取消", style: .cancel)
         alert.addAction(photoLibrary)
@@ -219,5 +222,14 @@ extension CENoteViewController: UITextViewDelegate {
 
     func textViewDidChange(_ textView: UITextView) {
         dynamicNoteTextViewHeight()
+    }
+}
+
+// MARK: - PresentableVC
+extension CENoteViewController: PresentableVC {
+    func presentVC(_ vc: UIViewController) {
+        DispatchQueue.main.async {
+            self.present(vc, animated: true)
+        }
     }
 }

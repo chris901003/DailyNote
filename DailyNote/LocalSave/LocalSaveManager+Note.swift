@@ -24,17 +24,27 @@ struct LocalSaveNoteData: Codable {
 // MARK: - Note
 extension LocalSaveManager {
     func createNewNote(note: NoteData) throws {
-        var saveNoteData = LocalSaveNoteData.createFrom(data: note)
+        var note = note
         let basePath = try createNewNoteFolder(startTime: note.startDate)
-        saveNoteData.folderName = basePath.lastPathComponent
-        let jsonData = try encoder.encode(saveNoteData)
-        let dataPath = basePath.appendingPathComponent("note.json")
-        try jsonData.write(to: dataPath)
-        for (index, image) in note.images.enumerated() {
-            let imageData = image.jpegData(compressionQuality: 0.5)
-            let imagePath = basePath.appendingPathComponent("image-\(index + 1).jpg")
-            try imageData?.write(to: imagePath)
-        }
+        note.folderName = basePath.lastPathComponent
+        try saveNote(note: note, path: basePath)
+    }
+
+    func updateNote(oldNote: NoteData, newNote: NoteData) throws {
+        let calendar = Calendar.current
+        let year = String(calendar.component(.year, from: oldNote.startDate))
+        let month = String(format: "%02d", calendar.component(.month, from: oldNote.startDate))
+        let day = String(format: "%02d", calendar.component(.day, from: oldNote.startDate))
+        let basePath = notePath
+            .appendingPathComponent(year)
+            .appendingPathComponent(month)
+            .appendingPathComponent(day)
+            .appendingPathComponent(oldNote.folderName)
+        try fileManager.removeItem(at: basePath)
+        try fileManager.createDirectory(at: basePath, withIntermediateDirectories: true)
+        var note = newNote
+        note.folderName = oldNote.folderName
+        try saveNote(note: note, path: basePath)
     }
 
     func getFolders(url: URL) throws -> [String] {
@@ -86,6 +96,18 @@ private extension LocalSaveManager {
             index += 1
             try fileManager.createDirectory(at: folderPath, withIntermediateDirectories: true)
             return folderPath
+        }
+    }
+
+    func saveNote(note: NoteData, path: URL) throws {
+        let saveNoteData = LocalSaveNoteData.createFrom(data: note)
+        let jsonData = try encoder.encode(saveNoteData)
+        let dataPath = path.appendingPathComponent("note.json")
+        try jsonData.write(to: dataPath)
+        for (index, image) in note.images.enumerated() {
+            let imageData = image.jpegData(compressionQuality: 0.5)
+            let imagePath = path.appendingPathComponent("image-\(index + 1).jpg")
+            try imageData?.write(to: imagePath)
         }
     }
 }

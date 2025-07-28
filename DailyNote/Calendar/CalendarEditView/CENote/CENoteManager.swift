@@ -7,9 +7,20 @@
 
 
 import Foundation
+import xxooooxxCommonUI
 
 class CENoteManager {
-    func sendNote(oldNoteData: NoteData, noteData: NoteData) {
-        
+    let localSaveManager = LocalSaveManager()
+
+    func sendNote(oldNoteData: NoteData?, noteData: NoteData) {
+        do {
+            if let oldNoteData {
+                try localSaveManager.updateNote(oldNote: oldNoteData, newNote: noteData)
+            } else {
+                try localSaveManager.createNewNote(note: noteData)
+            }
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
     }
 }

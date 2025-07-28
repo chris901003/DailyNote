@@ -8,10 +8,12 @@
 
 import Foundation
 import UIKit
+import xxooooxxCommonUI
 
 class CalendarEditViewController: UIViewController {
     let topBar = UIView()
     let tableView = UITableView()
+    let addButton = UIImageView()
 
     let manager: CalendarEditManager
 
@@ -35,7 +37,7 @@ class CalendarEditViewController: UIViewController {
                 try await manager.loadNotes()
                 await MainActor.run { [weak self] in self?.tableView.reloadData() }
             } catch {
-                print("✅ Error: \(error.localizedDescription)")
+                XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
             }
         }
 
@@ -43,6 +45,12 @@ class CalendarEditViewController: UIViewController {
             self,
             selector: #selector(receiveUpdateNoteNotification),
             name: .updateNote,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveNewNoteNotification),
+            name: .newNote,
             object: nil
         )
     }
@@ -55,6 +63,11 @@ class CalendarEditViewController: UIViewController {
 
         tableView.delegate = self
         tableView.dataSource = self
+
+        addButton.image = UIImage(systemName: "plus.circle")
+        addButton.contentMode = .scaleAspectFit
+        addButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapAddAction)))
+        addButton.isUserInteractionEnabled = true
     }
 
     private func layout() {
@@ -67,18 +80,38 @@ class CalendarEditViewController: UIViewController {
             topBar.heightAnchor.constraint(equalToConstant: 6)
         ])
 
+        view.addSubview(addButton)
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            addButton.heightAnchor.constraint(equalToConstant: 30),
+            addButton.widthAnchor.constraint(equalToConstant: 30)
+        ])
+
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -8)
         ])
     }
 
     private func registerCell() {
         tableView.register(CalendarEditCell.self, forCellReuseIdentifier: CalendarEditCell.cellId)
+    }
+
+    @objc private func tapAddAction() {
+        var components = DateComponents()
+        components.year = Int(manager.year)
+        components.month = Int(manager.month)
+        components.day = Int(manager.day)
+        let date = Calendar.current.date(from: components) ?? .now
+        let noteData = NoteData(note: "", images: [], startDate: date, endDate: date)
+        let noteViewController = CENoteViewController(noteData: noteData, isNew: true)
+        present(noteViewController, animated: true)
     }
 }
 
@@ -109,6 +142,14 @@ extension CalendarEditViewController {
     @objc private func receiveUpdateNoteNotification(_ notification: Notification) {
         guard let data = DNNotification.decodeUpdateNote(notification) else { return }
         manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
+    }
+
+    @objc private func receiveNewNoteNotification(_ notification: Notification) {
+        guard let data = DNNotification.decodeNewNote(notification) else { return }
+        manager.newNote(note: data)
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadData()
         }

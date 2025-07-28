@@ -56,6 +56,12 @@ class CalendarViewController: UIViewController {
             name: .updateNote,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveNewNoteNotification),
+            name: .newNote,
+            object: nil
+        )
     }
 
     override func viewDidLayoutSubviews() {
@@ -234,6 +240,15 @@ extension CalendarViewController {
     @objc private func receiveUpdateNoteNotification(_ notification: Notification) {
         guard let data = DNNotification.decodeUpdateNote(notification) else { return }
         manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            noteView.config(noteData: manager.dayNotes)
+        }
+    }
+
+    @objc private func receiveNewNoteNotification(_ notification: Notification) {
+        guard let data = DNNotification.decodeNewNote(notification) else { return }
+        manager.newNote(newNote: data)
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             noteView.config(noteData: manager.dayNotes)

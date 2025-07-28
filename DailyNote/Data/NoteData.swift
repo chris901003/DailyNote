@@ -30,4 +30,12 @@ struct NoteData: Equatable {
         && lhs.endDate == rhs.endDate
         && lhs.folderName == rhs.folderName
     }
+
+    func getStartDate() -> (year: String, month: String, day: String) {
+        let calendar = Calendar.current
+        let year = String(calendar.component(.year, from: startDate))
+        let month = String(format: "%02d", calendar.component(.month, from: startDate))
+        let day = String(format: "%02d", calendar.component(.day, from: startDate))
+        return (year, month, day)
+    }
 }

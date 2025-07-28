@@ -23,11 +23,13 @@ class CENoteViewController: UIViewController {
 
     var noteTextViewHeightConstraint: NSLayoutConstraint!
     let noteData: NoteData
+    let isNew: Bool
     let manager = CENoteManager()
     let photoPickerManager = BasePhotoPickerManager()
 
-    init(noteData: NoteData) {
+    init(noteData: NoteData, isNew: Bool = false) {
         self.noteData = noteData
+        self.isNew = isNew
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -213,7 +215,7 @@ class CENoteViewController: UIViewController {
             endDate: endDateView.date,
             folderName: noteData.folderName
         )
-        manager.sendNote(oldNoteData: noteData, noteData: newNoteData)
+        manager.sendNote(oldNoteData: isNew ? nil : noteData, noteData: newNoteData)
         dismiss(animated: true)
     }
 }

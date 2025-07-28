@@ -30,4 +30,10 @@ class CalendarEditManager {
         guard let idx = notes.firstIndex(where: { $0 == oldNote }) else { return }
         notes[idx] = newNote
     }
+
+    func newNote(note: NoteData) {
+        let newData = note.getStartDate()
+        guard newData.year == year, newData.month == month, newData.day == day else { return }
+        notes.append(note)
+    }
 }

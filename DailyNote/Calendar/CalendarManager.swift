@@ -54,6 +54,11 @@ class CalendarManager {
         guard let idx = dayNotes.firstIndex(of: oldNote) else { return }
         dayNotes[idx] = newNote
     }
+
+    func newNote(newNote: NoteData) {
+        guard newNote.startDate.isSameDay(target: selectedDate) else { return }
+        dayNotes.append(newNote)
+    }
 }
 
 extension CalendarManager {

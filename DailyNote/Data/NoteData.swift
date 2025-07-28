@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-struct NoteData {
+struct NoteData: Equatable {
     let note: String
     let images: [UIImage]
     let startDate: Date
@@ -22,5 +22,12 @@ struct NoteData {
         self.startDate = startDate
         self.endDate = endDate
         self.folderName = folderName
+    }
+
+    static func == (lhs: NoteData, rhs: NoteData) -> Bool {
+        return lhs.note == rhs.note
+        && lhs.startDate == rhs.startDate
+        && lhs.endDate == rhs.endDate
+        && lhs.folderName == rhs.folderName
     }
 }

@@ -50,6 +50,12 @@ class CalendarViewController: UIViewController {
                 XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
             }
         }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveUpdateNoteNotification),
+            name: .updateNote,
+            object: nil
+        )
     }
 
     override func viewDidLayoutSubviews() {
@@ -220,5 +226,17 @@ extension CalendarViewController: CalendarNoteViewDelegate {
 extension CalendarViewController: PresentableVC {
     func presentVC(_ vc: UIViewController) {
         present(vc, animated: true)
+    }
+}
+
+// MARK: - Notification Center
+extension CalendarViewController {
+    @objc private func receiveUpdateNoteNotification(_ notification: Notification) {
+        guard let data = DNNotification.decodeUpdateNote(notification) else { return }
+        manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            noteView.config(noteData: manager.dayNotes)
+        }
     }
 }

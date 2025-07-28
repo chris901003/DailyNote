@@ -49,6 +49,11 @@ class CalendarManager {
         try await loadMonthData()
         await loadDayNote()
     }
+
+    func updateNote(oldNote: NoteData, newNote: NoteData) {
+        guard let idx = dayNotes.firstIndex(of: oldNote) else { return }
+        dayNotes[idx] = newNote
+    }
 }
 
 extension CalendarManager {

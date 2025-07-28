@@ -38,6 +38,13 @@ class CalendarEditViewController: UIViewController {
                 print("✅ Error: \(error.localizedDescription)")
             }
         }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveUpdateNoteNotification),
+            name: .updateNote,
+            object: nil
+        )
     }
 
     private func setup() {
@@ -94,5 +101,16 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
 
         let noteViewController = CENoteViewController(noteData: manager.notes[indexPath.row])
         present(noteViewController, animated: true)
+    }
+}
+
+// MARK: - Notification Center
+extension CalendarEditViewController {
+    @objc private func receiveUpdateNoteNotification(_ notification: Notification) {
+        guard let data = DNNotification.decodeUpdateNote(notification) else { return }
+        manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
 }

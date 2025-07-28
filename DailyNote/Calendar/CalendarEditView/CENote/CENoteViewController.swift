@@ -210,7 +210,8 @@ class CENoteViewController: UIViewController {
             note: noteTextView.text,
             images: photoPickerManager.getImages(),
             startDate: startDateView.date,
-            endDate: endDateView.date
+            endDate: endDateView.date,
+            folderName: noteData.folderName
         )
         manager.sendNote(oldNoteData: noteData, noteData: newNoteData)
         dismiss(animated: true)

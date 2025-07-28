@@ -16,8 +16,10 @@ class CENoteManager {
         do {
             if let oldNoteData {
                 try localSaveManager.updateNote(oldNote: oldNoteData, newNote: noteData)
+                DNNotification.sendUpdateNote(oldNote: oldNoteData, newNote: noteData)
             } else {
                 try localSaveManager.createNewNote(note: noteData)
+                DNNotification.sendNewNote(newNote: noteData)
             }
         } catch {
             XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)

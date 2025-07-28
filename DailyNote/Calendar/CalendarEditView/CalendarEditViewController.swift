@@ -92,7 +92,7 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let noteViewController = CENoteViewController()
+        let noteViewController = CENoteViewController(noteData: manager.notes[indexPath.row])
         present(noteViewController, animated: true)
     }
 }

@@ -19,9 +19,21 @@ class CENoteViewController: UIViewController {
     let sepLabel = UILabel()
     let endDateView = UIDatePicker()
     let photoIcon = UIImageView()
+    let sendButton = UIImageView()
 
     var noteTextViewHeightConstraint: NSLayoutConstraint!
+    let noteData: NoteData
+    let manager = CENoteManager()
     let photoPickerManager = BasePhotoPickerManager()
+
+    init(noteData: NoteData) {
+        self.noteData = noteData
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -49,6 +61,7 @@ class CENoteViewController: UIViewController {
 
     private func setup() {
         photoPickerManager.delegate = self
+        photoPickerManager.config(photos: noteData.images)
 
         blurView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapBlurViewAction)))
         blurView.isUserInteractionEnabled = true
@@ -56,23 +69,32 @@ class CENoteViewController: UIViewController {
         mainContentView.backgroundColor = .white
         mainContentView.layer.cornerRadius = 15.0
 
-        noteTextView.text = "It was supposed to be a dream vacation. They had planned it over a year in advance so that it would be perfect in every way. It had been what they had been looking forward to through all the turmoil and negativity around them. It had been the light at the end of both their tunnels. Now that the dream vacation was only a week away, the virus had stopped all air travel."
+        noteTextView.text = noteData.note
         noteTextView.font = .systemFont(ofSize: 14, weight: .medium)
         noteTextView.delegate = self
 
-        startDateView.date = .now
+        startDateView.date = noteData.startDate
         startDateView.datePickerMode = .time
+        startDateView.addTarget(self, action: #selector(startOrEndDateChange), for: .valueChanged)
 
         sepLabel.text = "~"
         sepLabel.font = .systemFont(ofSize: 14, weight: .semibold)
 
-        endDateView.date = .now
+        endDateView.date = noteData.endDate
         endDateView.datePickerMode = .time
+        endDateView.addTarget(self, action: #selector(startOrEndDateChange), for: .valueChanged)
 
         photoIcon.image = UIImage(systemName: "photo.circle")
         photoIcon.contentMode = .scaleAspectFit
         photoIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapPhotoAction)))
         photoIcon.isUserInteractionEnabled = true
+
+        sendButton.image = UIImage(systemName: "paperplane")
+        sendButton.contentMode = .scaleAspectFit
+        sendButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapSendAction)))
+        sendButton.isUserInteractionEnabled = true
+
+        startOrEndDateChange()
     }
 
     private func layout() {
@@ -157,6 +179,15 @@ class CENoteViewController: UIViewController {
             photoIcon.heightAnchor.constraint(equalToConstant: 30),
             photoIcon.widthAnchor.constraint(equalToConstant: 30)
         ])
+
+        mainContentView.addSubview(sendButton)
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            sendButton.centerYAnchor.constraint(equalTo: startDateView.centerYAnchor),
+            sendButton.trailingAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.trailingAnchor, constant: -8),
+            sendButton.widthAnchor.constraint(equalToConstant: 25),
+            sendButton.heightAnchor.constraint(equalToConstant: 25)
+        ])
     }
 
     @objc private func tapBlurViewAction() {
@@ -165,6 +196,24 @@ class CENoteViewController: UIViewController {
         } else {
             dismiss(animated: true)
         }
+    }
+
+    @objc private func tapSendAction() {
+        if noteTextView.text.isEmpty {
+            let alert = UIAlertController(title: "保存失敗", message: "至少需要輸入一筆內容", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "確認", style: .default)
+            alert.addAction(okAction)
+            present(alert, animated: true)
+            return
+        }
+        let newNoteData = NoteData(
+            note: noteTextView.text,
+            images: photoPickerManager.getImages(),
+            startDate: startDateView.date,
+            endDate: endDateView.date
+        )
+        manager.sendNote(oldNoteData: noteData, noteData: newNoteData)
+        dismiss(animated: true)
     }
 }
 
@@ -183,6 +232,13 @@ extension CENoteViewController {
         alert.addAction(photoList)
         alert.addAction(cancel)
         present(alert, animated: true)
+    }
+}
+
+extension CENoteViewController {
+    @objc private func startOrEndDateChange() {
+        startDateView.maximumDate = endDateView.date
+        endDateView.minimumDate = startDateView.date
     }
 }
 

@@ -19,6 +19,7 @@ class CENoteViewController: UIViewController {
     let sepLabel = UILabel()
     let endDateView = UIDatePicker()
     let photoIcon = UIImageView()
+    let deleteIcon = UIImageView()
     let sendButton = UIImageView()
 
     var noteTextViewHeightConstraint: NSLayoutConstraint!
@@ -90,6 +91,12 @@ class CENoteViewController: UIViewController {
         photoIcon.contentMode = .scaleAspectFit
         photoIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapPhotoAction)))
         photoIcon.isUserInteractionEnabled = true
+
+        deleteIcon.image = UIImage(systemName: "trash.circle")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+        deleteIcon.contentMode = .scaleAspectFit
+        deleteIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapDeleteAction)))
+        deleteIcon.isUserInteractionEnabled = true
+        deleteIcon.isHidden = isNew
 
         sendButton.image = UIImage(systemName: "paperplane")
         sendButton.contentMode = .scaleAspectFit
@@ -182,6 +189,15 @@ class CENoteViewController: UIViewController {
             photoIcon.widthAnchor.constraint(equalToConstant: 30)
         ])
 
+        mainContentView.addSubview(deleteIcon)
+        deleteIcon.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            deleteIcon.centerYAnchor.constraint(equalTo: startDateView.centerYAnchor),
+            deleteIcon.leadingAnchor.constraint(equalTo: photoIcon.trailingAnchor, constant: 8),
+            deleteIcon.heightAnchor.constraint(equalToConstant: 30),
+            deleteIcon.widthAnchor.constraint(equalToConstant: 30)
+        ])
+
         mainContentView.addSubview(sendButton)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -198,6 +214,19 @@ class CENoteViewController: UIViewController {
         } else {
             dismiss(animated: true)
         }
+    }
+
+    @objc private func tapDeleteAction() {
+        let alert = UIAlertController(title: "確定要刪除嗎", message: "刪除後將無法復原", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+        let deleteAction = UIAlertAction(title: "刪除", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            DNNotification.sendDeleteNote(note: noteData)
+            dismiss(animated: true)
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(deleteAction)
+        present(alert, animated: true)
     }
 
     @objc private func tapSendAction() {

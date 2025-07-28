@@ -36,4 +36,9 @@ class CalendarEditManager {
         guard newData.year == year, newData.month == month, newData.day == day else { return }
         notes.append(note)
     }
+
+    func deleteNote(note: NoteData) {
+        guard let idx = notes.firstIndex(of: note) else { return }
+        notes.remove(at: idx)
+    }
 }

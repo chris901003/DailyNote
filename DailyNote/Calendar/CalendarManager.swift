@@ -63,6 +63,15 @@ class CalendarManager {
         guard newNote.startDate.isSameDay(target: selectedDate) else { return }
         dayNotes.append(newNote)
     }
+
+    func deleteNote(note: NoteData) {
+        if note.startDate.isSameMonth(target: currentDate) {
+            let day = Int(Calendar.current.component(.day, from: note.startDate))
+            numberOfNotes[day, default: 1] -= 1
+        }
+        guard let idx = dayNotes.firstIndex(of: note) else { return }
+        dayNotes.remove(at: idx)
+    }
 }
 
 extension CalendarManager {

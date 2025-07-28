@@ -32,6 +32,8 @@ class MNLTimeCell: UITableViewCell {
     }
 
     private func setup() {
+        selectionStyle = .none
+
         leftSepLineView.backgroundColor = .secondarySystemBackground
         leftSepLineView.layer.cornerRadius = 2.5
 

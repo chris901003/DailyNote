@@ -11,6 +11,7 @@ import Foundation
 extension Notification.Name {
     static let newNote = Notification.Name("NewNote")
     static let updateNote = Notification.Name("UpdateNote")
+    static let deleteNote = Notification.Name("DeleteNote")
 }
 
 class DNNotification {
@@ -37,5 +38,16 @@ class DNNotification {
             return nil
         }
         return (oldNote: oldNote, newNote: newNote)
+    }
+
+    // MARK: - Delete Note
+    static func sendDeleteNote(note: NoteData) {
+        NotificationCenter.default.post(name: .deleteNote, object: nil, userInfo: ["note": note])
+    }
+
+    static func decodeDeleteNote(_ notification: Notification) -> NoteData? {
+        guard let userInfo = notification.userInfo,
+              let note = userInfo["note"] as? NoteData else { return nil }
+        return note
     }
 }

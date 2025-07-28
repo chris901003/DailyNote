@@ -20,7 +20,7 @@ class CalendarManager {
                     try await loadMonthData()
                     await MainActor.run { vc?.collectionView.reloadData() }
                 } catch {
-                    XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+                    XOBottomBarInformationManager.showBottomInformation(type: .info, information: "本月沒有任何日記")
                 }
             }
         }

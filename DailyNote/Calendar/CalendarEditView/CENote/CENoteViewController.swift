@@ -18,6 +18,7 @@ class CENoteViewController: UIViewController {
     let startDateView = UIDatePicker()
     let sepLabel = UILabel()
     let endDateView = UIDatePicker()
+    let photoIcon = UIImageView()
 
     var noteTextViewHeightConstraint: NSLayoutConstraint!
 
@@ -64,6 +65,11 @@ class CENoteViewController: UIViewController {
 
         endDateView.date = .now
         endDateView.datePickerMode = .time
+
+        photoIcon.image = UIImage(systemName: "photo.circle")
+        photoIcon.contentMode = .scaleAspectFit
+        photoIcon.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapPhotoAction)))
+        photoIcon.isUserInteractionEnabled = true
     }
 
     private func layout() {
@@ -139,6 +145,15 @@ class CENoteViewController: UIViewController {
             endDateView.leadingAnchor.constraint(equalTo: sepLabel.trailingAnchor, constant: 4),
             endDateView.widthAnchor.constraint(equalToConstant: 70)
         ])
+
+        mainContentView.addSubview(photoIcon)
+        photoIcon.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            photoIcon.leadingAnchor.constraint(equalTo: endDateView.trailingAnchor, constant: 12),
+            photoIcon.centerYAnchor.constraint(equalTo: startDateView.centerYAnchor),
+            photoIcon.heightAnchor.constraint(equalToConstant: 30),
+            photoIcon.widthAnchor.constraint(equalToConstant: 30)
+        ])
     }
 
     @objc private func tapBlurViewAction() {
@@ -147,6 +162,24 @@ class CENoteViewController: UIViewController {
         } else {
             dismiss(animated: true)
         }
+    }
+}
+
+// MARK: - Photo
+extension CENoteViewController {
+    @objc private func tapPhotoAction() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let photoLibrary = UIAlertAction(title: "從相簿選擇", style: .default) { _ in
+            print("✅ Photo library")
+        }
+        let photoList = UIAlertAction(title: "照片列表", style: .default) { _ in
+            print("✅ Photo list")
+        }
+        let cancel = UIAlertAction(title: "取消", style: .cancel)
+        alert.addAction(photoLibrary)
+        alert.addAction(photoList)
+        alert.addAction(cancel)
+        present(alert, animated: true)
     }
 }
 

@@ -33,12 +33,8 @@ class CalendarEditViewController: UIViewController {
         registerCell()
         Task.detached { [weak self] in
             guard let self else { return }
-            do {
-                try await manager.loadNotes()
-                await MainActor.run { [weak self] in self?.tableView.reloadData() }
-            } catch {
-                XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
-            }
+            try? await manager.loadNotes()
+            await MainActor.run { [weak self] in self?.tableView.reloadData() }
         }
 
         NotificationCenter.default.addObserver(

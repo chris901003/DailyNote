@@ -1,0 +1,190 @@
+// Created for DailyNote in 2025
+// Using Swift 6.0
+//
+//
+// Created by HongYan on 2025/7/27.
+// Copyright © 2025 HongYan. All rights reserved.
+
+
+import Foundation
+import UIKit
+
+class CENoteViewController: UIViewController {
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    let mainContentView = UIView()
+    let noteTextView = UITextView()
+    let startDateView = UIDatePicker()
+    let sepLabel = UILabel()
+    let endDateView = UIDatePicker()
+
+    var noteTextViewHeightConstraint: NSLayoutConstraint!
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        dynamicNoteTextViewHeight()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setup()
+        layout()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+
+    private func setup() {
+        blurView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapBlurViewAction)))
+        blurView.isUserInteractionEnabled = true
+
+        mainContentView.backgroundColor = .white
+        mainContentView.layer.cornerRadius = 15.0
+
+        noteTextView.text = "It was supposed to be a dream vacation. They had planned it over a year in advance so that it would be perfect in every way. It had been what they had been looking forward to through all the turmoil and negativity around them. It had been the light at the end of both their tunnels. Now that the dream vacation was only a week away, the virus had stopped all air travel."
+        noteTextView.font = .systemFont(ofSize: 14, weight: .medium)
+        noteTextView.delegate = self
+
+        startDateView.date = .now
+        startDateView.datePickerMode = .time
+
+        sepLabel.text = "~"
+        sepLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+
+        endDateView.date = .now
+        endDateView.datePickerMode = .time
+    }
+
+    private func layout() {
+        view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        scrollView.addSubview(contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        let contentViewHeightConstraint = contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        contentViewHeightConstraint.priority = .defaultLow
+        contentViewHeightConstraint.isActive = true
+
+        contentView.addSubview(blurView)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            blurView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+
+        contentView.addSubview(mainContentView)
+        mainContentView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            mainContentView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            mainContentView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            mainContentView.widthAnchor.constraint(equalToConstant: 4 * UIScreen.main.bounds.width / 5)
+        ])
+
+        mainContentView.addSubview(noteTextView)
+        noteTextView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            noteTextView.topAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.topAnchor),
+            noteTextView.leadingAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.leadingAnchor),
+            noteTextView.trailingAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.trailingAnchor)
+        ])
+        noteTextViewHeightConstraint = noteTextView.heightAnchor.constraint(equalToConstant: 100)
+        noteTextViewHeightConstraint.isActive = true
+
+        mainContentView.addSubview(startDateView)
+        startDateView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            startDateView.topAnchor.constraint(equalTo: noteTextView.bottomAnchor, constant: 8),
+            startDateView.leadingAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.leadingAnchor),
+            startDateView.bottomAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.bottomAnchor),
+            startDateView.widthAnchor.constraint(equalToConstant: 70)
+        ])
+
+        mainContentView.addSubview(sepLabel)
+        sepLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            sepLabel.centerYAnchor.constraint(equalTo: startDateView.centerYAnchor),
+            sepLabel.leadingAnchor.constraint(equalTo: startDateView.trailingAnchor, constant: 4)
+        ])
+
+        mainContentView.addSubview(endDateView)
+        endDateView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            endDateView.centerYAnchor.constraint(equalTo: startDateView.centerYAnchor),
+            endDateView.leadingAnchor.constraint(equalTo: sepLabel.trailingAnchor, constant: 4),
+            endDateView.widthAnchor.constraint(equalToConstant: 70)
+        ])
+    }
+
+    @objc private func tapBlurViewAction() {
+        if noteTextView.isFirstResponder {
+            noteTextView.resignFirstResponder()
+        } else {
+            dismiss(animated: true)
+        }
+    }
+}
+
+// MARK: - Keyboard Notification
+extension CENoteViewController {
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
+
+        let keyboardHeight = keyboardFrame.height
+        UIView.animate(withDuration: duration) {
+            self.scrollView.contentInset.bottom = keyboardHeight
+            self.scrollView.verticalScrollIndicatorInsets.bottom = keyboardHeight
+            let newOffset = CGPoint(x: self.scrollView.contentOffset.x, y: self.scrollView.contentOffset.y + keyboardHeight / 2)
+            self.scrollView.setContentOffset(newOffset, animated: true)
+        }
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        UIView.animate(withDuration: 0.25) {
+            self.scrollView.contentInset.bottom = 0
+            self.scrollView.verticalScrollIndicatorInsets.bottom = 0
+        }
+    }
+}
+
+// MARK: - UITextViewDelegate
+extension CENoteViewController: UITextViewDelegate {
+    func dynamicNoteTextViewHeight() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            noteTextView.layoutIfNeeded()
+            noteTextViewHeightConstraint.constant = min(UIScreen.main.bounds.height / 3, noteTextView.contentSize.height)
+        }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        dynamicNoteTextViewHeight()
+    }
+}

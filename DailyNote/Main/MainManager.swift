@@ -52,6 +52,9 @@ extension MainManager {
             loadData.dayList = (try? localSaveManager.getFolders(url: monthPath!)) ?? []
             loadData.isEnd = false
         }
+        loadData.yearIndex = 0
+        loadData.monthIndex = 0
+        loadData.dayIndex = 0
         Task { await loadMoreNote() }
     }
 

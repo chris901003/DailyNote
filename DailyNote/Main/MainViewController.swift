@@ -14,6 +14,7 @@ class MainViewController: UIViewController {
     let mainContentView = UIView()
     let mainInputViewController = MInputViewController()
     let noteTableView = UITableView()
+    let refreshControl = UIRefreshControl()
 
     let manager = MainManager()
     var lastExtendIndexPath: IndexPath?
@@ -55,6 +56,10 @@ class MainViewController: UIViewController {
         noteTableView.delegate = self
         noteTableView.dataSource = self
         noteTableView.showsVerticalScrollIndicator = false
+
+        refreshControl.attributedTitle = NSAttributedString(string: "下拉重新整理")
+        refreshControl.addTarget(self, action: #selector(refreshNotes), for: .valueChanged)
+        noteTableView.refreshControl = refreshControl
     }
     
     private func layout() {
@@ -96,6 +101,12 @@ class MainViewController: UIViewController {
             noteTableView.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -16),
             noteTableView.bottomAnchor.constraint(equalTo: mainInputViewController.view.topAnchor, constant: -12)
         ])
+    }
+
+    @objc private func refreshNotes() {
+        manager.notes.removeAll()
+        manager.initLoadNote()
+        refreshControl.endRefreshing()
     }
 }
 

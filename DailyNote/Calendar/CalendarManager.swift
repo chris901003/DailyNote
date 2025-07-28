@@ -56,6 +56,10 @@ class CalendarManager {
     }
 
     func newNote(newNote: NoteData) {
+        if newNote.startDate.isSameMonth(target: currentDate) {
+            let day = Int(Calendar.current.component(.day, from: newNote.startDate))
+            numberOfNotes[day, default: 0] += 1
+        }
         guard newNote.startDate.isSameDay(target: selectedDate) else { return }
         dayNotes.append(newNote)
     }

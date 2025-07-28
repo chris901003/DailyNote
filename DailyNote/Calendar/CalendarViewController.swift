@@ -252,6 +252,7 @@ extension CalendarViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             noteView.config(noteData: manager.dayNotes)
+            collectionView.reloadData()
         }
     }
 }

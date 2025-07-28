@@ -23,6 +23,10 @@ extension Date {
     func isSameDay(target: Date) -> Bool {
         Calendar.current.isDate(self, inSameDayAs: target)
     }
+
+    func isSameMonth(target: Date) -> Bool {
+        Calendar.current.isDate(self, equalTo: target, toGranularity: .month)
+    }
 }
 
 extension Date {

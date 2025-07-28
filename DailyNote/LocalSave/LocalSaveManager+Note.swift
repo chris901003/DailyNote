@@ -31,20 +31,26 @@ extension LocalSaveManager {
     }
 
     func updateNote(oldNote: NoteData, newNote: NoteData) throws {
-        let calendar = Calendar.current
-        let year = String(calendar.component(.year, from: oldNote.startDate))
-        let month = String(format: "%02d", calendar.component(.month, from: oldNote.startDate))
-        let day = String(format: "%02d", calendar.component(.day, from: oldNote.startDate))
-        let basePath = notePath
-            .appendingPathComponent(year)
-            .appendingPathComponent(month)
-            .appendingPathComponent(day)
-            .appendingPathComponent(oldNote.folderName)
-        try fileManager.removeItem(at: basePath)
+        let basePath = try deleteNote(noteData: oldNote)
         try fileManager.createDirectory(at: basePath, withIntermediateDirectories: true)
         var note = newNote
         note.folderName = oldNote.folderName
         try saveNote(note: note, path: basePath)
+    }
+
+    @discardableResult
+    func deleteNote(noteData: NoteData) throws -> URL {
+        let calendar = Calendar.current
+        let year = String(calendar.component(.year, from: noteData.startDate))
+        let month = String(format: "%02d", calendar.component(.month, from: noteData.startDate))
+        let day = String(format: "%02d", calendar.component(.day, from: noteData.startDate))
+        let basePath = notePath
+            .appendingPathComponent(year)
+            .appendingPathComponent(month)
+            .appendingPathComponent(day)
+            .appendingPathComponent(noteData.folderName)
+        try fileManager.removeItem(at: basePath)
+        return basePath
     }
 
     func getFolders(url: URL) throws -> [String] {

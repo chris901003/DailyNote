@@ -221,6 +221,7 @@ class CENoteViewController: UIViewController {
         let cancelAction = UIAlertAction(title: "取消", style: .cancel)
         let deleteAction = UIAlertAction(title: "刪除", style: .destructive) { [weak self] _ in
             guard let self else { return }
+            manager.deleteNote(note: noteData)
             DNNotification.sendDeleteNote(note: noteData)
             dismiss(animated: true)
         }

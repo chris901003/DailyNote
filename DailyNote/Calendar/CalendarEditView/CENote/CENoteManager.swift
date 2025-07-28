@@ -25,4 +25,12 @@ class CENoteManager {
             XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
         }
     }
+
+    func deleteNote(note: NoteData) {
+        do {
+            try localSaveManager.deleteNote(noteData: note)
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
+    }
 }

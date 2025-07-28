@@ -50,6 +50,7 @@ extension LocalSaveManager {
             .appendingPathComponent(day)
             .appendingPathComponent(noteData.folderName)
         try fileManager.removeItem(at: basePath)
+        try deleteRedundantFolders(year: year, month: month, day: day)
         return basePath
     }
 
@@ -114,6 +115,21 @@ private extension LocalSaveManager {
             let imageData = image.jpegData(compressionQuality: 0.5)
             let imagePath = path.appendingPathComponent("image-\(index + 1).jpg")
             try imageData?.write(to: imagePath)
+        }
+    }
+
+    func deleteRedundantFolders(year: String, month: String, day: String) throws {
+        let dayPath = notePath.appendingPathComponent(year).appendingPathComponent(month).appendingPathComponent(day)
+        if try getFolders(url: dayPath).isEmpty {
+            try fileManager.removeItem(at: dayPath)
+        }
+        let monthPath = notePath.appendingPathComponent(year).appendingPathComponent(month)
+        if try getFolders(url: monthPath).isEmpty {
+            try fileManager.removeItem(at: monthPath)
+        }
+        let yearPath = notePath.appendingPathComponent(year)
+        if try getFolders(url: yearPath).isEmpty {
+            try fileManager.removeItem(at: yearPath)
         }
     }
 }

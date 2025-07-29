@@ -52,6 +52,7 @@ extension LocalSaveManager {
             try fileManager.removeItem(at: url)
         }
         print("=== 🗑️ End Delete 🗑️ ===")
+        createRootFolderIfNeeded()
     }
 }
 

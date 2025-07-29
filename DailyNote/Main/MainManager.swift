@@ -39,9 +39,11 @@ class MainManager {
 // MARK: - Load Note
 extension MainManager {
     func initLoadNote() {
+        loadData = LoadData()
         var yearPath: URL?
         var monthPath: URL?
 
+        loadData.isEnd = true
         loadData.yearList = (try? localSaveManager.getFolders(url: localSaveManager.notePath)) ?? []
         if let year = loadData.yearList.first {
             yearPath = localSaveManager.notePath.appendingPathComponent(year)
@@ -55,7 +57,10 @@ extension MainManager {
         loadData.yearIndex = 0
         loadData.monthIndex = 0
         loadData.dayIndex = 0
-        Task { await loadMoreNote() }
+        Task {
+            await vc?.noteTableView.reloadData()
+            await loadMoreNote()
+        }
     }
 
     func loadMoreNote() async {

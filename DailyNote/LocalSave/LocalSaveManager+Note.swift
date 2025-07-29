@@ -99,8 +99,10 @@ private extension LocalSaveManager {
             .appendingPathComponent("\(day)")
         while true {
             let folderPath = basePath.appendingPathComponent("\(hour)\(minute)-\(index)")
-            if fileManager.fileExists(atPath: folderPath.path) { continue }
-            index += 1
+            if fileManager.fileExists(atPath: folderPath.path) {
+                index += 1
+                continue
+            }
             try fileManager.createDirectory(at: folderPath, withIntermediateDirectories: true)
             return folderPath
         }

@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import xxooooxxCommonUI
+import GoogleMobileAds
 
 extension SettingViewController {
     enum Sections: String {
@@ -24,6 +25,7 @@ extension SettingViewController {
 class SettingViewController: UIViewController {
     let iconView = SAppIconView()
     let tableView = UITableView(frame: .zero, style: .insetGrouped)
+    let bannerView = BannerView()
 
     let sections: [Sections] = [.file]
     let rows: [[Rows]] = [[.usage]]
@@ -42,6 +44,11 @@ class SettingViewController: UIViewController {
         tableView.dataSource = self
         tableView.layer.cornerRadius = 10.0
         tableView.clipsToBounds = true
+
+        // ca-app-pub-9700012113647677/8740737789
+        bannerView.isHidden = true
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2435281174"
+        bannerView.load(Request())
     }
 
     private func layout() {
@@ -52,13 +59,22 @@ class SettingViewController: UIViewController {
             iconView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
 
+        view.addSubview(bannerView)
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bannerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bannerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bannerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bannerView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: iconView.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: bannerView.topAnchor, constant: -12)
         ])
     }
 

@@ -156,6 +156,7 @@ extension MInputViewController {
     @objc private func sendAction() {
         do {
             try manager.sendAction()
+            clockView.setNextTimeRange()
         } catch {
             let alert = UIAlertController(title: "創建失敗", message: error.localizedDescription, preferredStyle: .alert)
             let okAction = UIAlertAction(title: "確認", style: .default)

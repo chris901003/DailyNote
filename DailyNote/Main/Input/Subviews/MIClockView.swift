@@ -25,20 +25,29 @@ class MIClockView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setNextTimeRange() {
+        let calendar = Calendar.current
+        if let nextHour = calendar.date(byAdding: .hour, value: 1, to: endDatePicker.date),
+           let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 0, of: endDatePicker.date) {
+            startDatePicker.date = endDatePicker.date
+            endDatePicker.date = min(nextHour, endOfDay)
+        }
+    }
+
     private func setup() {
         iconView.image = UIImage(systemName: "clock")?.withTintColor(.secondaryLabel, renderingMode: .alwaysOriginal)
         iconView.contentMode = .scaleAspectFit
 
         startDatePicker.datePickerMode = .time
         startDatePicker.preferredDatePickerStyle = .compact
-        startDatePicker.addTarget(self, action: #selector(setMinimumDateAndMaximumDate), for: .valueChanged)
+        startDatePicker.addTarget(self, action: #selector(setValidDate), for: .valueChanged)
 
         label.text = "~"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
 
         endDatePicker.datePickerMode = .time
         endDatePicker.preferredDatePickerStyle = .compact
-        endDatePicker.addTarget(self, action: #selector(setMinimumDateAndMaximumDate), for: .valueChanged)
+        endDatePicker.addTarget(self, action: #selector(setValidDate), for: .valueChanged)
     }
 
     private func layout() {
@@ -78,6 +87,15 @@ class MIClockView: UIView {
     @objc private func setMinimumDateAndMaximumDate() {
         startDatePicker.maximumDate = endDatePicker.date
         endDatePicker.minimumDate = startDatePicker.date
+    }
+
+    @objc private func setValidDate() {
+        if startDatePicker.date > endDatePicker.date {
+            endDatePicker.date = startDatePicker.date
+        }
+        if endDatePicker.date < startDatePicker.date {
+            startDatePicker.date = endDatePicker.date
+        }
     }
 }
 

@@ -9,6 +9,6 @@
 import Foundation
 import UIKit
 
-protocol PresentableVC: AnyObject {
+@objc protocol PresentableVC: AnyObject {
     func presentVC(_ vc: UIViewController)
 }

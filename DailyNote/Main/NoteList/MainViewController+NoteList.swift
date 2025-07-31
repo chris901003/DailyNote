@@ -64,6 +64,16 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 // MARK: - MNLNoteCellDelegate
 extension MainViewController: MNLNoteCellDelegate {
+    func updateNote(cell: MNLNoteCell, note: NoteData) {
+        guard let indexPath = noteTableView.indexPath(for: cell) else { return }
+        do {
+            try manager.updateNote(idx: indexPath.row, newNote: note)
+            noteTableView.reloadData()
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
+    }
+
     func deleteNote(cell: MNLNoteCell) {
         guard let indexPath = noteTableView.indexPath(for: cell) else { return }
         do {

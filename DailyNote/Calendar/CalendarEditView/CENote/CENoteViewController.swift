@@ -315,7 +315,7 @@ extension CENoteViewController: UITextViewDelegate {
 }
 
 // MARK: - PresentableVC
-extension CENoteViewController: PresentableVC {
+extension CENoteViewController: BasePhotoPickerManagerDelegate {
     func presentVC(_ vc: UIViewController) {
         DispatchQueue.main.async {
             self.present(vc, animated: true)

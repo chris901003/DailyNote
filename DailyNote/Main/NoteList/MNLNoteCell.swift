@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 protocol MNLNoteCellDelegate: PresentableVC {
+    func updateNote(cell: MNLNoteCell, note: NoteData)
     func deleteNote(cell: MNLNoteCell)
 }
 
@@ -232,7 +233,14 @@ extension MNLNoteCell {
     }
 
     @objc private func tapEditAction() {
-        print("✅ Edit action")
+        guard let data else { return }
+        let noteEditVC = NoteEditViewController(
+            note: .init(note: data.note, images: data.images, startDate: data.startDate, endDate: data.endDate)
+        )
+        noteEditVC.modalPresentationStyle = .overCurrentContext
+        noteEditVC.modalTransitionStyle = .crossDissolve
+        noteEditVC.delegate = self
+        delegate?.presentVC(noteEditVC)
     }
 
     @objc private func tapDeleteAction() {
@@ -245,5 +253,12 @@ extension MNLNoteCell {
         alert.addAction(cancelAction)
         alert.addAction(deleteAction)
         delegate?.presentVC(alert)
+    }
+}
+
+// MARK: - NoteEditViewControllerDelegate
+extension MNLNoteCell: NoteEditViewControllerDelegate {
+    func saveNote(note: NoteData) {
+        delegate?.updateNote(cell: self, note: note)
     }
 }

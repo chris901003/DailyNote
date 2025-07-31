@@ -151,6 +151,20 @@ extension MainManager {
         notes.insert(.init(type: .note(data: note)), at: index)
     }
 
+    func updateNote(idx: Int, newNote: NoteData) throws {
+        let data = notes[idx]
+        switch data.type {
+            case .note(let oldNote):
+                try localSaveManager.updateNote(oldNote: oldNote, newNote: newNote)
+                var newNote = newNote
+                newNote.folderName = oldNote.folderName
+                notes[idx] = .init(type: .note(data: newNote))
+                DNNotification.sendUpdateNote(oldNote: oldNote, newNote: newNote)
+            case .time(_):
+                break
+        }
+    }
+
     func deleteNote(idx: Int) throws {
         let data = notes.remove(at: idx)
         switch data.type {

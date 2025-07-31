@@ -9,11 +9,15 @@
 import Foundation
 import PhotosUI
 
+@objc protocol BasePhotoPickerManagerDelegate: PresentableVC {
+    @objc optional func didFinishSelected()
+}
+
 class BasePhotoPickerManager {
     private var photos: [UIImage] = []
     private var selectedImageIds: [String] = []
     private var images: [UIImage] = []
-    weak var delegate: PresentableVC?
+    weak var delegate: BasePhotoPickerManagerDelegate?
 
     func config(photos: [UIImage]) {
         self.photos = photos
@@ -43,8 +47,30 @@ class BasePhotoPickerManager {
         delegate?.presentVC(photoListViewController)
     }
 
+    func getImage(idx: Int) -> UIImage? {
+        if idx < images.count {
+            return images[idx]
+        } else if idx < images.count + photos.count {
+            return photos[idx - images.count]
+        }
+        return nil
+    }
+
     func getImages() -> [UIImage] {
         images + photos
+    }
+
+    func getNumberOfImages() -> Int {
+        images.count + photos.count
+    }
+
+    func deleteImage(idx: Int) {
+        if idx < images.count {
+            images.remove(at: idx)
+            selectedImageIds.remove(at: idx)
+        } else {
+            photos.remove(at: idx - images.count)
+        }
     }
 
     private func getDatas() -> [BPPPhotoListViewController.Data] {
@@ -66,16 +92,18 @@ extension BasePhotoPickerManager: PHPickerViewControllerDelegate {
             selectedImageIds.remove(at: index)
         }
 
-        for result in results {
-            let provider = result.itemProvider
-            if provider.canLoadObject(ofClass: UIImage.self) {
-                provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
-                    guard let self else { return }
-                    if let uiImage = image as? UIImage {
-                        images.append(uiImage)
-                        selectedImageIds.append(result.assetIdentifier ?? "")
-                    }
+        Task.detached { [weak self] in
+            guard let self else { return }
+            for result in results {
+                let provider = result.itemProvider
+                if provider.canLoadObject(ofClass: UIImage.self) {
+                    guard let uiImage = await provider.loadUIImage() else { continue }
+                    images.append(uiImage)
+                    selectedImageIds.append(result.assetIdentifier ?? "")
                 }
+            }
+            await MainActor.run { [weak self] in
+                self?.delegate?.didFinishSelected?()
             }
         }
     }

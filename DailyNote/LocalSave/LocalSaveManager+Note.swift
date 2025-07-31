@@ -55,7 +55,8 @@ extension LocalSaveManager {
     }
 
     func getFolders(url: URL) throws -> [String] {
-        try fileManager.contentsOfDirectory(atPath: url.path).sorted(by: >)
+        guard fileManager.fileExists(atPath: url.path) else { return [] }
+        return try fileManager.contentsOfDirectory(atPath: url.path).sorted(by: >)
     }
 
     func loadDayNotes(year: String, month: String, day: String) throws -> [NoteData] {
@@ -122,15 +123,18 @@ private extension LocalSaveManager {
 
     func deleteRedundantFolders(year: String, month: String, day: String) throws {
         let dayPath = notePath.appendingPathComponent(year).appendingPathComponent(month).appendingPathComponent(day)
-        if try getFolders(url: dayPath).isEmpty {
+        if try getFolders(url: dayPath).isEmpty,
+           fileManager.fileExists(atPath: dayPath.path) {
             try fileManager.removeItem(at: dayPath)
         }
         let monthPath = notePath.appendingPathComponent(year).appendingPathComponent(month)
-        if try getFolders(url: monthPath).isEmpty {
+        if try getFolders(url: monthPath).isEmpty,
+           fileManager.fileExists(atPath: monthPath.path) {
             try fileManager.removeItem(at: monthPath)
         }
         let yearPath = notePath.appendingPathComponent(year)
-        if try getFolders(url: yearPath).isEmpty {
+        if try getFolders(url: yearPath).isEmpty,
+           fileManager.fileExists(atPath: yearPath.path) {
             try fileManager.removeItem(at: yearPath)
         }
     }

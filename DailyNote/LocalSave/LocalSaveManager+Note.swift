@@ -23,11 +23,12 @@ struct LocalSaveNoteData: Codable {
 
 // MARK: - Note
 extension LocalSaveManager {
-    func createNewNote(note: NoteData) throws {
+    func createNewNote(note: NoteData) throws -> NoteData {
         var note = note
         let basePath = try createNewNoteFolder(startTime: note.startDate)
         note.folderName = basePath.lastPathComponent
         try saveNote(note: note, path: basePath)
+        return note
     }
 
     func updateNote(oldNote: NoteData, newNote: NoteData) throws {

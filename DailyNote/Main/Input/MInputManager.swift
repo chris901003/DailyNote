@@ -74,14 +74,14 @@ class MInputManager {
         inputData.startDate = duration.startTime
         inputData.endDate = duration.endTime
 
-        let noteData = NoteData(
+        var noteData = NoteData(
             note: inputData.note,
             images: inputData.images + inputData.photos,
             startDate: inputData.startDate,
             endDate: inputData.endDate
         )
 
-        try localSaveManager.createNewNote(note: noteData)
+        noteData = try localSaveManager.createNewNote(note: noteData)
         DNNotification.sendNewNote(newNote: noteData)
 
         inputData = MainInputData.newInput()

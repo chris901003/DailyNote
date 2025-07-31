@@ -155,11 +155,11 @@ extension MainManager {
         let data = notes[idx]
         switch data.type {
             case .note(let oldNote):
-                try localSaveManager.updateNote(oldNote: oldNote, newNote: newNote)
-                var newNote = newNote
-                newNote.folderName = oldNote.folderName
-                notes[idx] = .init(type: .note(data: newNote))
-                DNNotification.sendUpdateNote(oldNote: oldNote, newNote: newNote)
+                var note = newNote
+                note.folderName = oldNote.folderName
+                try localSaveManager.updateNote(oldNote: oldNote, newNote: note)
+                notes[idx] = .init(type: .note(data: note))
+                DNNotification.sendUpdateNote(oldNote: oldNote, newNote:  note)
             case .time(_):
                 break
         }

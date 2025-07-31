@@ -9,6 +9,10 @@
 import Foundation
 import UIKit
 
+protocol MNLNoteCellDelegate: PresentableVC {
+    func deleteNote(cell: MNLNoteCell)
+}
+
 extension MNLNoteCell {
     struct CellData {
         let note: String
@@ -26,11 +30,13 @@ class MNLNoteCell: UITableViewCell {
     let dateLabel = UILabel()
     let photoView = UIImageView()
     let photoLabel = UILabel()
+    let editButton = UILabel()
+    let deleteButton = UIImageView()
 
     var labelTrailingConstraint: NSLayoutConstraint!
     var data: CellData?
     var isExtended = false
-    weak var delegate: PresentableVC?
+    weak var delegate: MNLNoteCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -57,6 +63,8 @@ class MNLNoteCell: UITableViewCell {
         label.numberOfLines = 3
         label.textColor = .secondaryLabel
         mainContentView.layer.borderColor = UIColor.secondarySystemBackground.cgColor
+        editButton.alpha = 0
+        deleteButton.alpha = 0
     }
 
     func config(data: CellData) {
@@ -108,6 +116,23 @@ class MNLNoteCell: UITableViewCell {
         dateLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         dateLabel.textAlignment = .left
         dateLabel.numberOfLines = 1
+
+        editButton.text = "編輯"
+        editButton.font = .systemFont(ofSize: 14, weight: .semibold)
+        editButton.textColor = .systemBlue
+        editButton.textAlignment = .center
+        editButton.layer.cornerRadius = 15.0
+        editButton.layer.borderWidth = 1.5
+        editButton.layer.borderColor = UIColor.systemBlue.cgColor
+        editButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapEditAction)))
+        editButton.isUserInteractionEnabled = true
+        editButton.alpha = 0
+
+        deleteButton.image = UIImage(systemName: "trash.circle")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
+        deleteButton.contentMode = .scaleAspectFit
+        deleteButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapDeleteAction)))
+        deleteButton.isUserInteractionEnabled = true
+        deleteButton.alpha = 0
     }
 
     private func layout() {
@@ -151,8 +176,25 @@ class MNLNoteCell: UITableViewCell {
             dateLabel.topAnchor.constraint(greaterThanOrEqualTo: label.bottomAnchor, constant: 8),
             dateLabel.topAnchor.constraint(greaterThanOrEqualTo: photoView.bottomAnchor, constant: 8),
             dateLabel.leadingAnchor.constraint(equalTo: mainContentView.leadingAnchor, constant: 16),
-            dateLabel.trailingAnchor.constraint(equalTo: mainContentView.trailingAnchor, constant: -8),
             dateLabel.bottomAnchor.constraint(equalTo: mainContentView.bottomAnchor, constant: -8)
+        ])
+
+        mainContentView.addSubview(deleteButton)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            deleteButton.centerYAnchor.constraint(equalTo: dateLabel.centerYAnchor),
+            deleteButton.trailingAnchor.constraint(equalTo: mainContentView.layoutMarginsGuide.trailingAnchor),
+            deleteButton.widthAnchor.constraint(equalToConstant: 32),
+            deleteButton.heightAnchor.constraint(equalToConstant: 32)
+        ])
+
+        mainContentView.addSubview(editButton)
+        editButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            editButton.centerYAnchor.constraint(equalTo: dateLabel.centerYAnchor),
+            editButton.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -8),
+            editButton.widthAnchor.constraint(equalToConstant: 50),
+            editButton.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
 }
@@ -162,6 +204,8 @@ extension MNLNoteCell {
         isExtended = !isExtended
         UIView.animate(withDuration: 0.25) { [weak self] in
             guard let self else { return }
+            editButton.alpha = isExtended ? 1 : 0
+            deleteButton.alpha = isExtended ? 1 :0
             if isExtended {
                 label.numberOfLines = 0
                 label.textColor = .black
@@ -185,5 +229,21 @@ extension MNLNoteCell {
             ]
         }
         delegate?.presentVC(photoListVC)
+    }
+
+    @objc private func tapEditAction() {
+        print("✅ Edit action")
+    }
+
+    @objc private func tapDeleteAction() {
+        let alert = UIAlertController(title: "刪除日記", message: "刪除日記後將無法復原", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel)
+        let deleteAction = UIAlertAction(title: "刪除", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            delegate?.deleteNote(cell: self)
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(deleteAction)
+        delegate?.presentVC(alert)
     }
 }

@@ -150,4 +150,14 @@ extension MainManager {
         let index = insertDateIfNeeded(note: note, index: getInsertIndex(note: note))
         notes.insert(.init(type: .note(data: note)), at: index)
     }
+
+    func deleteNote(idx: Int) throws {
+        let data = notes.remove(at: idx)
+        switch data.type {
+            case .note(let note):
+                try localSaveManager.deleteNote(noteData: note)
+            case .time(_):
+                break
+        }
+    }
 }

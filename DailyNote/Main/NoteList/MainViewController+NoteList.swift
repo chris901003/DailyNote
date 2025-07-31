@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import xxooooxxCommonUI
 
 // MARK: - NoteList
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
@@ -58,5 +59,18 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard indexPath.row == manager.notes.count - 1, !manager.loadData.isLoading, !manager.loadData.isEnd else { return }
         Task { await manager.loadMoreNote() }
+    }
+}
+
+// MARK: - MNLNoteCellDelegate
+extension MainViewController: MNLNoteCellDelegate {
+    func deleteNote(cell: MNLNoteCell) {
+        guard let indexPath = noteTableView.indexPath(for: cell) else { return }
+        do {
+            try manager.deleteNote(idx: indexPath.row)
+            noteTableView.deleteRows(at: [indexPath], with: .automatic)
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
     }
 }

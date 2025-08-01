@@ -258,7 +258,8 @@ extension NoteEditViewController {
                 note: noteTextView.text,
                 images: photoManager.getImages(),
                 startDate: startDateView.date,
-                endDate: endDateView.date
+                endDate: endDateView.date,
+                folderName: note.folderName
             )
         )
         dismiss(animated: true)

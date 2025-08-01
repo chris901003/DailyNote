@@ -26,8 +26,9 @@ class CalendarEditManager {
         notes = try localSaveManager.loadDayNotes(year: year, month: month, day: day)
     }
 
-    func updateNote(oldNote: NoteData, newNote: NoteData) {
+    func updateNote(oldNote: NoteData, newNote: NoteData) throws {
         guard let idx = notes.firstIndex(where: { $0 == oldNote }) else { return }
+        try localSaveManager.updateNote(oldNote: oldNote, newNote: newNote)
         notes[idx] = newNote
     }
 

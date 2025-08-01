@@ -16,6 +16,8 @@ class CalendarEditViewController: UIViewController {
     let addButton = UIImageView()
 
     let manager: CalendarEditManager
+    var isCreate = false
+    var updateIdx: Int? = nil
 
     init(year: String, month: String, day: String) {
         self.manager = CalendarEditManager(year: year, month: month, day: day)
@@ -134,8 +136,26 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let noteViewController = CENoteViewController(noteData: manager.notes[indexPath.row])
-        present(noteViewController, animated: true)
+        isCreate = true
+        updateIdx = indexPath.row
+        let noteEditViewController = NoteEditViewController(note: manager.notes[indexPath.row])
+        noteEditViewController.delegate = self
+        present(noteEditViewController, animated: true)
+    }
+}
+
+// MARK: - NoteEditViewControllerDelegate
+extension CalendarEditViewController: NoteEditViewControllerDelegate {
+    func saveNote(note: NoteData) {
+        guard let updateIdx else { return }
+        do {
+            try manager.updateNote(oldNote: manager.notes[updateIdx], newNote: note)
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.reloadData()
+            }
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
     }
 }
 
@@ -143,9 +163,13 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
 extension CalendarEditViewController {
     @objc private func receiveUpdateNoteNotification(_ notification: Notification) {
         guard let data = DNNotification.decodeUpdateNote(notification) else { return }
-        manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
-        DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadData()
+        do {
+            try manager.updateNote(oldNote: data.oldNote, newNote: data.newNote)
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.reloadData()
+            }
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
         }
     }
 

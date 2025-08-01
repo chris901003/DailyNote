@@ -28,11 +28,22 @@ class MInputViewController: UIViewController {
         super.viewDidLoad()
         setup()
         layout()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(receiveDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         adjustTextViewHeight()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupDate()
     }
 
     private func adjustTextViewHeight() {
@@ -163,6 +174,19 @@ extension MInputViewController {
             alert.addAction(okAction)
             delegate?.presentVC(alert)
         }
+    }
+
+    @objc private func receiveDidBecomeActive(_ notification: Notification) {
+        setupDate()
+    }
+
+    private func setupDate() {
+        let endDate = Date.now
+
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: endDate)
+        guard let startDate = hour == 0 ? calendar.startOfDay(for: endDate) : calendar.date(byAdding: .hour, value: -1, to: endDate) else { return }
+        clockView.setStartAndEndTime(startDate: startDate, endDate: endDate)
     }
 }
 

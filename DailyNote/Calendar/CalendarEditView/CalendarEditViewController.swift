@@ -117,6 +117,7 @@ class CalendarEditViewController: UIViewController {
         let date = Calendar.current.date(from: components) ?? .now
         let noteData = NoteData(note: "", images: [], startDate: date.previousHourWithSameDay(), endDate: date)
         let noteEditViewController = NoteEditViewController(note: noteData, isCreateMode: true)
+        noteEditViewController.delegate = self
         present(noteEditViewController, animated: true)
     }
 }
@@ -149,11 +150,29 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
 // MARK: - NoteEditViewControllerDelegate
 extension CalendarEditViewController: NoteEditViewControllerDelegate {
     func saveNote(note: NoteData, isCreate: Bool) {
+        if isCreate {
+            createNote(note: note)
+        } else {
+            updateNote(note: note)
+        }
+    }
+
+    private func createNote(note: NoteData) {
+        do {
+            try manager.createNewNote(note: note)
+        } catch {
+            XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)
+        }
+    }
+
+    private func updateNote(note: NoteData) {
         guard let updateIdx else { return }
         do {
             try manager.updateNote(oldNote: manager.notes[updateIdx], newNote: note)
             DispatchQueue.main.async { [weak self] in
-                self?.tableView.reloadData()
+                guard let self else { return }
+                tableView.reloadData()
+                DNNotification.sendUpdateNote(oldNote: manager.notes[updateIdx], newNote: note)
             }
         } catch {
             XOBottomBarInformationManager.showBottomInformation(type: .failed, information: error.localizedDescription)

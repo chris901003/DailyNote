@@ -112,10 +112,12 @@ class CalendarEditViewController: UIViewController {
         components.year = Int(manager.year)
         components.month = Int(manager.month)
         components.day = Int(manager.day)
+        components.hour = Calendar.current.component(.hour, from: .now)
+        components.minute = Calendar.current.component(.minute, from: .now)
         let date = Calendar.current.date(from: components) ?? .now
-        let noteData = NoteData(note: "", images: [], startDate: date, endDate: date)
-        let noteViewController = CENoteViewController(noteData: noteData, isNew: true)
-        present(noteViewController, animated: true)
+        let noteData = NoteData(note: "", images: [], startDate: date.previousHourWithSameDay(), endDate: date)
+        let noteEditViewController = NoteEditViewController(note: noteData, isCreateMode: true)
+        present(noteEditViewController, animated: true)
     }
 }
 
@@ -146,7 +148,7 @@ extension CalendarEditViewController: UITableViewDelegate, UITableViewDataSource
 
 // MARK: - NoteEditViewControllerDelegate
 extension CalendarEditViewController: NoteEditViewControllerDelegate {
-    func saveNote(note: NoteData) {
+    func saveNote(note: NoteData, isCreate: Bool) {
         guard let updateIdx else { return }
         do {
             try manager.updateNote(oldNote: manager.notes[updateIdx], newNote: note)

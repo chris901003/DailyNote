@@ -258,7 +258,7 @@ extension MNLNoteCell {
 
 // MARK: - NoteEditViewControllerDelegate
 extension MNLNoteCell: NoteEditViewControllerDelegate {
-    func saveNote(note: NoteData) {
+    func saveNote(note: NoteData, isCreate: Bool) {
         delegate?.updateNote(cell: self, note: note)
     }
 }

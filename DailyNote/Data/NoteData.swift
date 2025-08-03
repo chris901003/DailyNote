@@ -24,6 +24,10 @@ struct NoteData: Equatable {
         self.folderName = folderName
     }
 
+    static func createEmpty() -> NoteData {
+        .init(note: "", images: [], startDate: .now.previousHourWithSameDay(), endDate: .now)
+    }
+
     static func == (lhs: NoteData, rhs: NoteData) -> Bool {
         return lhs.note == rhs.note
         && lhs.startDate == rhs.startDate

@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 protocol NoteEditViewControllerDelegate: AnyObject {
-    func saveNote(note: NoteData)
+    func saveNote(note: NoteData, isCreate: Bool)
 }
 
 class NoteEditViewController: UIViewController {
@@ -35,8 +35,10 @@ class NoteEditViewController: UIViewController {
     let photoManager = BasePhotoPickerManager()
     let note: NoteData
     weak var delegate: NoteEditViewControllerDelegate?
+    var isCreateMode = false
 
-    init(note: NoteData) {
+    init(note: NoteData, isCreateMode: Bool = false) {
+        self.isCreateMode = isCreateMode
         self.note = note
         super.init(nibName: nil, bundle: nil)
     }
@@ -260,7 +262,8 @@ extension NoteEditViewController {
                 startDate: startDateView.date,
                 endDate: endDateView.date,
                 folderName: note.folderName
-            )
+            ),
+            isCreate: isCreateMode
         )
         dismiss(animated: true)
     }

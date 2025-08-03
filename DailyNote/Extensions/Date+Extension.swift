@@ -20,6 +20,13 @@ extension Date {
         return startOfTomorrow.addingTimeInterval(-1)
     }
 
+    func previousHourWithSameDay() -> Date {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: self)
+        let startDate = hour == 0 ? calendar.startOfDay(for: self) : calendar.date(byAdding: .hour, value: -1, to: self)
+        return startDate ?? self
+    }
+
     func isSameDay(target: Date) -> Bool {
         Calendar.current.isDate(self, inSameDayAs: target)
     }
